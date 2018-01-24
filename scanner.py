@@ -1,64 +1,98 @@
-from settings import buff_length
+from ScannerDFANode import Node, make_path
+from tokens import Tokens
+
+print(Tokens.PLUS_SIGN.value)
 
 
-class Scanner:
-
-    address = None
-    buff = list()
-    begin = 0
-    forward = 0
+class Scanner(object):
 
     def __init__(self, address):
-        self.address = address
-        self.buff = [' '] * buff_length
-        self.buff[-1] = 'EOF'
-        self.buff[buff_length / 2 - 1] = 'EOF'
+        self.begin = 0
+        self.forward = 0
+        self.root = None
+        self.source_code = open(address).read()
+        self.make_dfa()
+        node_and_token = self.root, None
+        print(node_and_token[0].name)
+        for i in range(len(self.source_code)):
+            # if self.source_code[i] == '+':
+            #     pass
+            node_and_token = node_and_token[0].get_next_node(self.source_code[i])
+            print(node_and_token[1])
 
     def get_next_token(self):
         """
-        only interface of scanner, gives the next token to parser
+        the only interface of scanner, gives the next token to parser
         :return: next token
         """
 
-        while True:
-            ret = self._check_pattern(self._get_lexeme(self.begin, self.forward))
+    def make_dfa(self):
+        self.root = Node('root')
 
-            if ret[0]:
-                self.begin = self.forward
-                if not ret[2]:
-                    self.begin = self.begin = self.begin + 1
-                    if self.buff[self.begin] is 'EOF':
-                        self.begin = (self.begin + 1) % buff_length
-                return ret[1]
+        self.root.add_edge(['\n', '\t', ' ', '\r'], self.root)  # skip space, tab and newline
 
-            self.forward += 1
-            if self.buff[self.forward] is 'EOF':
-                if self.forward is (buff_length / 2 - 1):
-                    self._reload_second_half()
-                    self.forward += 1
-                elif self.forward is (buff_length - 1):
-                    self._reload_first_half()
-                    self.forward = 0
-                else:
-                    return 'EOF', None
+        equal_first = Node('equal_first')
+        equal_second = Node('equal_second')
 
-    def _check_pattern(self, string):
-        """
-        check for finding some pattern in string
-        :param string: lexeme that must be checked for some pattern
-        :return: a tuple with two element.
-            first element is a boolean that describe does we find a pattern ?
-            second element is the token if first element is true and None o.w.
-            third element is a boolean that describe will be the last character useful in future?
-        """
+        # handle +, +=
+        first_positive = Node('first_positive')
+        positive_equal = Node('positive_equal')
+        self.root.add_edge(['+'], first_positive)
+        first_positive.other_case(self.root)
+        first_positive.other_token(Tokens.PLUS_SIGN)
+        first_positive.add_edge(['='], positive_equal)
+        positive_equal.other_case(self.root)
+        positive_equal.other_token(Tokens.PLUS_EQUAL)
 
-        pass
+        # =, ==
+        self.root.add_edge(['='], equal_first)
+        equal_first.other_case(self.root)
+        equal_first.other_token(Tokens.EQUAL_SIGN)
+        equal_first.add_edge(['='], equal_second)
+        equal_second.other_case(self.root)
+        equal_second.other_token(Tokens.EQUAL_EQUAL)
 
-    def _get_lexeme(self, begin, forward):
-        return self.buff[begin:forward+1]
+        # comments
+        comment_first = Node('comment_first')
+        comment_skip = Node('comment_skip')
+        comment_end = Node('comment_end')
+        comment_line = Node('comment_line')
+        self.root.add_edge(['/'], comment_first)
+        comment_first.add_edge(['*'], comment_skip)
+        comment_first.add_edge(['/'], comment_line)
+        comment_skip.add_edge(['*'], comment_end)
+        comment_skip.other_case(comment_skip)
+        comment_end.add_edge(['/'], self.root)
+        comment_end.other_case(comment_skip)
+        comment_line.add_edge(['\n'], self.root)
+        comment_line.other_case(comment_line)
 
-    def _reload_second_half(self):
-        pass
+        make_path('(', Tokens.OPEN_PARENTHESES)
+        make_path(')', Tokens.CLOSE_PARENTHESES)
+        make_path('{', Tokens.OPEN_BRACKET)
+        make_path('}', Tokens.CLOSE_PARENTHESES)
+        make_path('&&', Tokens.DOUBLE_AND)
+        make_path('public', Tokens.PUBLIC)
+        make_path('EOF', Tokens.EOF)
+        make_path('class', Tokens.CLASS)
+        make_path('void', Tokens.VOID)
+        make_path('main', Tokens.MAIN)
+        make_path('extends', Tokens.EXTENDS)
+        make_path('static', Tokens.STATIC)
+        make_path(';', Tokens.SEMICOLON)
+        make_path('return', Tokens.RETURN)
+        make_path('colon', Tokens.COLON)
+        make_path('boolean', Tokens.BOOLEAN)
+        make_path('int', Tokens.INT)
+        make_path('if', Tokens.IF)
+        make_path('else', Tokens.ELSE)
+        make_path('for', Tokens.FOR)
+        make_path('while', Tokens.WHILE)
+        make_path('system.out.println', Tokens.SYSOUT)  # TODO: think about this one!
+        make_path('-', Tokens.MINUS_SIGN)
+        make_path('*', Tokens.MULTI_SIGN)
+        make_path('.', Tokens.DOT)
+        make_path('<', Tokens.LESS)
 
-    def _reload_first_half(self):
-        pass
+
+a = Scanner('test1.java')

@@ -1,9 +1,9 @@
 // test case 1
-class Cls{
+ class Cls{
     static boolean d ;
     public static int test( int a , boolean b ) {
-        int c ;
-        c = 1 ;
+        int c = -1 + -2 + +3;
+        c = +1 + -2;
         b = true ;
         return a + c ;
     }

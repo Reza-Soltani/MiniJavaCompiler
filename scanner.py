@@ -3,6 +3,7 @@ from tokens import Tokens
 
 
 class Scanner(object):
+    SIGN_PLUS = [Tokens.CLOSE_PARENTHESES, Tokens.IDENTIFIER, Tokens.INTEGER, Tokens.TRUE, Tokens.FALSE]
 
     def __init__(self, address):
         self.begin = 0
@@ -23,7 +24,14 @@ class Scanner(object):
         node_and_token = self.root, None
         self.begin = self.forward
         while True:
-            node_and_token = node_and_token[0].get_next_node(self.source_code[self.forward])
+            if node_and_token[0].name == 'root':
+                self.begin = self.forward
+            current_char = self.source_code[self.forward]
+            if current_char == '+' and self.last_token in Scanner.SIGN_PLUS:
+                current_char = '%'
+            if current_char == '-' and self.last_token in Scanner.SIGN_PLUS:
+                current_char = '^'
+            node_and_token = node_and_token[0].get_next_node(current_char, self.root)
             if node_and_token[1] is not None:
                 self.last_token = node_and_token[1]
                 return node_and_token[1], self.source_code[self.begin:self.forward]
@@ -50,7 +58,7 @@ class Scanner(object):
         # handle +, +=
         first_positive = Node('first_positive')
         positive_equal = Node('positive_equal')
-        self.root.add_edge(['+'], first_positive)
+        self.root.add_edge(['%'], first_positive)
         first_positive.other_case(self.root)
         first_positive.other_token(Tokens.PLUS_SIGN)
         first_positive.add_edge(['='], positive_equal)
@@ -82,9 +90,11 @@ class Scanner(object):
 
 
         # identifier and integer nodes
-        digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+        digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-']
         digit = Node('digit')
         self.root.add_edge(digits, digit)
+        digits.pop()
+        digits.pop()
         digit.add_edge(digits, digit)
         digit.other_case(self.root)
         digit.other_token(Tokens.INTEGER)
@@ -116,15 +126,16 @@ class Scanner(object):
         make_path('else', self.root, letter, Tokens.ELSE)
         make_path('for', self.root, letter, Tokens.FOR)
         make_path('while', self.root, letter, Tokens.WHILE)
-        make_path('System.out.println', self.root, letter, Tokens.SYSOUT)  # TODO: think about this one!
-        make_path('-', self.root, letter, Tokens.MINUS_SIGN)
+        make_path('System.out.println', self.root, letter, Tokens.SYSOUT)
+        make_path('^', self.root, letter, Tokens.MINUS_SIGN)
         make_path('*', self.root, letter, Tokens.MULTI_SIGN)
         make_path('.', self.root, letter, Tokens.DOT)
         make_path('<', self.root, letter, Tokens.LESS)
         make_path('true', self.root, letter, Tokens.TRUE)
         make_path('false', self.root, letter, Tokens.FALSE)
 
+
 a = Scanner('test1.java')
 
-# for i in range(80):
-#     print(a.get_next_token())
+for i in range(80):
+    print(a.get_next_token())

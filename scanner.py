@@ -1,8 +1,6 @@
 from ScannerDFANode import Node, make_path
 from tokens import Tokens
 
-print(Tokens.PLUS_SIGN.value)
-
 
 class Scanner(object):
 
@@ -12,19 +10,34 @@ class Scanner(object):
         self.root = None
         self.source_code = open(address).read()
         self.make_dfa()
-        node_and_token = self.root, None
-        print(node_and_token[0].name)
-        for i in range(len(self.source_code)):
-            # if self.source_code[i] == '+':
-            #     pass
-            node_and_token = node_and_token[0].get_next_node(self.source_code[i])
-            print(node_and_token[1])
+        self.last_token = None
+        # node_and_token = self.root, None
+        # print(node_and_token[0].name)
+        # for i in range(len(self.source_code)):
+        #     # if self.source_code[i] == '+':
+        #     #     pass
+        #     node_and_token = node_and_token[0].get_next_node(self.source_code[i])
+        #     print(node_and_token[0].name, node_and_token[1], self.source_code[i])
 
     def get_next_token(self):
-        """
-        the only interface of scanner, gives the next token to parser
-        :return: next token
-        """
+        node_and_token = self.root, None
+        self.begin = self.forward
+        while True:
+            node_and_token = node_and_token[0].get_next_node(self.source_code[self.forward])
+            if node_and_token[1] is not None:
+                self.last_token = node_and_token[1]
+                return node_and_token[1], self.source_code[self.begin:self.forward]
+            self.forward += 1
+            if self.forward >= len(self.source_code):
+                self.forward -= 1
+                if self.last_token == Tokens.EOF:
+                    print('Error: no more token after end of file')
+                    return None, None
+                elif node_and_token[0].name == 'EOF 2':
+                    return Tokens.EOF, None
+                else:
+                    print('Error: no EOF at the end of file')
+                    return None, None
 
     def make_dfa(self):
         self.root = Node('root')
@@ -67,32 +80,51 @@ class Scanner(object):
         comment_line.add_edge(['\n'], self.root)
         comment_line.other_case(comment_line)
 
-        make_path('(', Tokens.OPEN_PARENTHESES)
-        make_path(')', Tokens.CLOSE_PARENTHESES)
-        make_path('{', Tokens.OPEN_BRACKET)
-        make_path('}', Tokens.CLOSE_PARENTHESES)
-        make_path('&&', Tokens.DOUBLE_AND)
-        make_path('public', Tokens.PUBLIC)
-        make_path('EOF', Tokens.EOF)
-        make_path('class', Tokens.CLASS)
-        make_path('void', Tokens.VOID)
-        make_path('main', Tokens.MAIN)
-        make_path('extends', Tokens.EXTENDS)
-        make_path('static', Tokens.STATIC)
-        make_path(';', Tokens.SEMICOLON)
-        make_path('return', Tokens.RETURN)
-        make_path('colon', Tokens.COLON)
-        make_path('boolean', Tokens.BOOLEAN)
-        make_path('int', Tokens.INT)
-        make_path('if', Tokens.IF)
-        make_path('else', Tokens.ELSE)
-        make_path('for', Tokens.FOR)
-        make_path('while', Tokens.WHILE)
-        make_path('system.out.println', Tokens.SYSOUT)  # TODO: think about this one!
-        make_path('-', Tokens.MINUS_SIGN)
-        make_path('*', Tokens.MULTI_SIGN)
-        make_path('.', Tokens.DOT)
-        make_path('<', Tokens.LESS)
 
+        # identifier and integer nodes
+        digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+        digit = Node('digit')
+        self.root.add_edge(digits, digit)
+        digit.add_edge(digits, digit)
+        digit.other_case(self.root)
+        digit.other_token(Tokens.INTEGER)
+
+        letter = Node('letter')
+        self.root.letter_case(letter)
+        letter.letter_case(letter)
+        letter.other_case(self.root)
+        letter.other_token(Tokens.IDENTIFIER)
+
+        make_path('(', self.root, letter, Tokens.OPEN_PARENTHESES)
+        make_path(')', self.root, letter, Tokens.CLOSE_PARENTHESES)
+        make_path('{', self.root, letter, Tokens.OPEN_BRACKET)
+        make_path('}', self.root, letter, Tokens.CLOSE_BRACKET)
+        make_path('&&', self.root, letter, Tokens.DOUBLE_AND)
+        make_path('public', self.root, letter, Tokens.PUBLIC)
+        make_path('EOF', self.root, letter, Tokens.EOF)
+        make_path('class', self.root, letter, Tokens.CLASS)
+        make_path('void', self.root, letter, Tokens.VOID)
+        make_path('main', self.root, letter, Tokens.MAIN)
+        make_path('extends', self.root, letter, Tokens.EXTENDS)
+        make_path('static', self.root, letter, Tokens.STATIC)
+        make_path(';', self.root, letter, Tokens.SEMICOLON)
+        make_path('return', self.root, letter, Tokens.RETURN)
+        make_path(',', self.root, letter, Tokens.COLON)
+        make_path('boolean', self.root, letter, Tokens.BOOLEAN)
+        make_path('int', self.root, letter, Tokens.INT)
+        make_path('if', self.root, letter, Tokens.IF)
+        make_path('else', self.root, letter, Tokens.ELSE)
+        make_path('for', self.root, letter, Tokens.FOR)
+        make_path('while', self.root, letter, Tokens.WHILE)
+        make_path('System.out.println', self.root, letter, Tokens.SYSOUT)  # TODO: think about this one!
+        make_path('-', self.root, letter, Tokens.MINUS_SIGN)
+        make_path('*', self.root, letter, Tokens.MULTI_SIGN)
+        make_path('.', self.root, letter, Tokens.DOT)
+        make_path('<', self.root, letter, Tokens.LESS)
+        make_path('true', self.root, letter, Tokens.TRUE)
+        make_path('false', self.root, letter, Tokens.FALSE)
 
 a = Scanner('test1.java')
+
+# for i in range(80):
+#     print(a.get_next_token())

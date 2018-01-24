@@ -18,43 +18,40 @@ class Parser(object):
         self.grammer = GRAMMER
 
     def run(self):
-        for i in range(100):
+        while True:
             if self.top_stack == 'EOF':
                 return
-            print("token:", self.next_token, "top_stack:", self.top_stack)
             self.top_stack = self.stack.top()
+            print(self.stack, self.next_token, self.top_stack)
             if self.top_stack in TERMINALS:
                 print("find terminal")
-                print(self.next_token, self.top_stack)
                 if self.next_token == self.top_stack:
                     print("match terminal")
+                    if self.next_token == 'EOF':
+                        break
                     self.stack.pop()
                     self.next_token = self.scanner.get_next_token()[0].value
-                    print(self.stack)
 
                 else:
                     print("see error")
                     return
 
             elif self.top_stack in NON_TERMINALS:
-                print("**************")
-                while self.top_stack in NON_TERMINALS:
-                    print("find non terminal")
-                    print("token:", self.next_token, "top_stack:", self.top_stack)
-                    if self.next_token in self.parser_table[self.top_stack]:
-                        print("match non terminal")
-                        self.push_rule_to_stack(self.parser_table[self.top_stack][self.next_token])
-                        print(self.stack)
-                    else:
-                        print("error")
-                        return
-                    self.top_stack = self.stack.top()
+                print("find non terminal")
+                if self.next_token in self.parser_table[self.top_stack]:
+                    print("match non terminal")
+                    self.push_rule_to_stack(self.parser_table[self.top_stack][self.next_token])
+                else:
+                    print("error")
+                    return
+                self.top_stack = self.stack.top()
 
     def push_rule_to_stack(self, rule_number):
         self.rule_number = rule_number
         self.rule = self.grammer[self.rule_number]
         rules = self.rule.split(" ")
         self.stack.pop()
+        print('***** ' + str(rules))
         for action in reversed(rules):
             self.stack.push(action)
         self.stack.pop()

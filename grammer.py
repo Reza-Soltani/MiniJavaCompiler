@@ -12,7 +12,7 @@ TERMINALS = ['EOF', 'public', 'class', 'static', 'void', 'main', '{', '}', '(', 
 GRAMMER = {
     1: "Goal Source EOF",
     2: "Source ClassDeclarations MainClass",
-    3: "MainClass public class Identifier { public static void main () { VarDeclarations Statements } }",
+    3: "MainClass public class Identifier { public static void main ( ) { VarDeclarations Statements } }",
     4: "ClassDeclarations ClassDeclaration ClassDeclarations",
     5: "ClassDeclarations",
     6: "ClassDeclaration class Identifier Extension { FieldDeclarations MethodDeclarations }",
@@ -58,7 +58,7 @@ GRAMMER = {
     46: "Factor false",
     47: "Factor Integer",
     48: "D",
-    49: "D .Identifier DD",
+    49: "D . Identifier DD",
     50: "DD",
     51: "DD ( Arguments )",
     52: "RelExpression RelTerm E",
@@ -95,7 +95,7 @@ PARSER_TABEL = {
     "Statements": {"{": 24, "if": 24, "while": 24, "for": 24, "identifier": 24, "System.out.println": 24, "}": 24, "return": 24},
     "Statement": {"{": 27, "if": 28, "while": 29, "for": 30, "identifier": 31, "System.out.println": 32},
     "GenExpression": {'(': 33, 'identifier': 33, 'true': 33, 'false': 33, 'integer': 33},
-    "Expression": {'(': 53, 'identifier': 53, 'true': 53, 'false': 53, 'integer': 53},
+    "Expression": {'(': 35, 'identifier': 35, 'true': 35, 'false': 35, 'integer': 35},
     "Term": {"(": 40, "true": 40, "false": 40, "identifier": 40, "integer": 40},
     "Factor": {"(": 43, "true": 45, "false": 46, "identifier": 44, "integer": 47},
     "RelExpression": {'(': 52, 'identifier': 52, 'true': 52, 'false': 52, 'integer': 52},
@@ -106,13 +106,13 @@ PARSER_TABEL = {
     "Integer": {"integer": 63},
     "A": {"{": 25, "if": 25, "while": 25, "for": 25, "identifier": 25, "System.out.println": 25, "}": 26, "return": 26},
     "B": {"+": 38, "-": 39},
-    "BB": {"+": 36, "-": 36, "&&": 37, ")": 37, ";": 37},
-    "C": {"*": 41, '+': 42, ';': 42, ')': 42, '&&': 42},
-    "D": {'+': 48, '-': 48, ';': 48, ')': 48, '&&': 48, ".": 49},
+    "BB": {"+": 36, "-": 36, "&&": 37, ")": 37, ";": 37, ',': 37},
+    "C": {"*": 41, '+': 42, ';': 42, ')': 42, '&&': 42, ',': 42},
+    "D": {'+': 48, '-': 48, ';': 48, ')': 48, '&&': 48, ".": 49, ',': 48},
     "DD": {"+": 50, "-": 50, ";": 50, "&&": 50, "(": 51},
     "E": {"==": 53, '<': 53, "&&": 54},
     "F": {"==": 56, "<": 57},
-    "G": {'&&': 34, ';': 64, ')': 64}
+    "G": {'&&': 34, ';': 64, ')': 64, ',': 64}
 }
 
 

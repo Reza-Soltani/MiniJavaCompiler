@@ -22,6 +22,9 @@ def make_path(string, root, letter_node, token):
     node.other_token(token)
 
 
+PANIC_MODE_SCANNER_CHARS = [';', '}', ')']
+
+
 class Node(object):
 
     def __init__(self, name):
@@ -47,13 +50,16 @@ class Node(object):
     def other_case(self, sink):
         self.ow = sink
 
-    def get_next_node(self, char):
+    def get_next_node(self, char, root):
         if char in self.nx:
             return self.nx[char], None
         if self.letter_goal is not None and (str.isalpha(char) or str.isdigit(char)):
             return self.letter_goal, None
         if self.ow is not None:
             return self.ow, self.other
+        if char in PANIC_MODE_SCANNER_CHARS: # panic mode error handling in dfa
+            print('Error: SKIPPED INPUT UNTIL {}'.format(char))
+            return root, None
         return self, None
 
     def other_token(self, other_token):

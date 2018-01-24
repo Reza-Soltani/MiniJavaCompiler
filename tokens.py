@@ -14,7 +14,7 @@ class Tokens(Enum):
     PUBLIC = 10
     EOF = 11
     CLASS = 12
-    VOID = 12
+    VOID = 'void'
     MAIN = 13
     EXTENDS = 14
     STATIC = 15
@@ -34,3 +34,5 @@ class Tokens(Enum):
     LESS = 29
     IDENTIFIER = 30
     INTEGER = 31
+    TRUE = 'true'
+    FALSE = 'false'

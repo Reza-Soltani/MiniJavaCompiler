@@ -1,5 +1,8 @@
 Rull_List = []
 
+TERMINALS = []
+NON_TERMINALS = []
+
 GRAMMER = {
     1: "Goal Source EOF",
     2: "Source ClassDeclarations MainClass",

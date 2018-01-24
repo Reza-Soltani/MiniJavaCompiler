@@ -1,7 +1,13 @@
 Rull_List = []
 
-TERMINALS = []
-NON_TERMINALS = []
+NON_TERMINALS = ['Goal', 'Source', 'MainClass', 'ClassDeclarations', 'ClassDeclaration', 'Extension', 'FieldDeclarations',
+             'FieldDeclaration', 'VarDeclarations', 'VarDeclaration', 'MethodDeclarations', 'MethodDeclaration', 'Parameters',
+             'Parameter', 'Type', 'Statements', 'Statement', 'A', 'GenExpression', 'G', 'Expression', 'BB',
+             'B', 'Term', 'C', 'Factor', 'D', 'RelExpression', 'E', 'RelTerm', 'F', 'Arguments', 'Argument',
+             'Identifier', 'Integer']
+TERMINALS = ['EOF', 'public', 'class', 'static', 'void', 'main', '{', '}', '(', ')', ';', '=', '==', '+', '-',
+             'extends', 'return', ',', 'boolean', 'int', 'if', 'for', 'while', 'System.out.println', '*', 'true',
+             'false', '&&', 'identifier', 'integer', 'else', '.', '+=']
 
 GRAMMER = {
     1: "Goal Source EOF",
@@ -38,7 +44,7 @@ GRAMMER = {
     32: "Statement System.out.println (GenExpression ) ;",
     33: "GenExpression Expression G",
     34: "G E F",
-    35: "Expression BB",
+    35: "Expression Term BB",
     36: "BB B BB",
     37: "BB",
     38: "B + Term",
@@ -108,3 +114,12 @@ PARSER_TABEL = {
     "F": {"=": 56, "<": 57},
     "G": {}
 }
+
+
+FIRST = {'Goal': [first(Source)], 'Source': [], 'MainClass': ['public'], 'ClassDeclarations': [], 'ClassDeclaration': ['class'], 'Extension': ['extends', ' '],
+         'FieldDeclarations': [], 'FieldDeclaration': ['static'], 'VarDeclarations': [], 'VarDeclaration': ['int', 'boolean'], 'MethodDeclarations': [],
+         'MethodDeclaration': ['public'], 'Parameters':[], 'Parameter': [',', ' '], 'Type': ['boolean', 'int'], 'Statements': [], 'Statement': ['{', 'if', 'while', 'for', 'identifier', 'System.out.println'],
+         'A': ['{', 'if', 'while', 'for', 'identifier', 'System.out.println', ' '], 'GenExpression': [], 'G': [], 'Expression': [], 'BB': [], 'B': [],
+         'Term':[], 'C': ['*', ' '], 'Factor': ['(', 'identifier', 'true', 'false', 'integer'], 'D': ['.'], 'RelExpression': [], 'E': ['&&'], 'RelTerm': [], 'F': ['==', '<'], 'Arguments': [], 'Argument': [',', ' '], 'Identifier': ['identifier'], 'Integer': ['integer']}
+
+FOLLOW = {'Goal': ['EOF']}

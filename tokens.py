@@ -8,12 +8,12 @@ class Tokens(Enum):
     EQUAL_EQUAL = '=='
     OPEN_PARENTHESES = '('
     CLOSE_PARENTHESES = ')'
-    OPEN_BRACKET = '['
-    CLOSE_BRACKET = ']'
+    OPEN_BRACKET = '{'
+    CLOSE_BRACKET = '}'
     DOUBLE_AND = '&&'
     PUBLIC = 'public'
     EOF = 'EOF'
-    CLASS = 'class'
+    CLASS = "class"
     VOID = 'void'
     MAIN = 'main'
     EXTENDS = 'extends'
@@ -31,6 +31,8 @@ class Tokens(Enum):
     MINUS_SIGN = '-'
     MULTI_SIGN = '*'
     DOT = '.'
-    LESS = 'M'
-    IDENTIFIER = 30
-    INTEGER = 31
+    LESS = '<'
+    IDENTIFIER = 'identifier'
+    INTEGER = 'integer'
+    TRUE = 'true'
+    FALSE = 'false'

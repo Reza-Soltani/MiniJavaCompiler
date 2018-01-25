@@ -57,4 +57,4 @@ class Parser(object):
         self.stack.pop()
 
 
-P = Parser('test1.java').run()
+P = Parser('test4.java').run()

@@ -2,6 +2,12 @@
 class Cls{
     static boolean d ;
     public static int test( int a , boolean b ) {
+        return a + c ;
+    }
+}
+class Cls3 extends Cls{
+    static boolean d ;
+    public static int test( int a , boolean b ) {
         int c;
         c = 1;
         b = true ;

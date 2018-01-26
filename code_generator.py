@@ -12,13 +12,13 @@ class CodeGenerator(object):
         self.program_block = []
 
     def make_command(self, command, first=None, second=None, third=None):
-        row = "(" + command.value + "," + first
+        row = "(" + command.value + "," + str(first)
         if second is not None:
-            row += second
+            row += str(second)
         else:
             return row + ',,)'
         if third is not None:
-            row += third
+            row += str(third)
         else:
             return row + ',)'
         return row + ")"
@@ -121,3 +121,6 @@ class CodeGenerator(object):
     def end_parametr(self, last_token):
         pass
 
+    def output_pb(self):
+        for i in self.program_block:
+            print(i)

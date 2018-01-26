@@ -53,7 +53,7 @@ class Parser(object):
         while True:
             self.top_stack = self.stack.top()
 
-            # print(self.stack, self.next_token, self.current_identifier)
+            print(self.stack, self.next_token, self.current_identifier)
             if self.top_stack in TERMINALS:
                 if must_get:
                     self.next_token = self.scanner.get_next_token()
@@ -83,10 +83,11 @@ class Parser(object):
 
             elif self.top_stack.startswith("@"):
                 eval('self.semantic_analyzer.%s(self.next_token)' % self.top_stack[1:])
-
+                self.stack.pop()
             elif self.top_stack.startswith("#"):
                 eval('self.code_generator.%s(self.next_token)' % self.top_stack[1:])
                 self.stack.pop()
+        self.code_generator.output_pb()
 
     def push_rule_to_stack(self, rule_number):
         self.rule = self.grammar[rule_number]
@@ -101,4 +102,4 @@ class Parser(object):
 
 
 
-P = Parser('test1.java').run()
+P = Parser('test5.java').run()

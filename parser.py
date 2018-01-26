@@ -23,32 +23,34 @@ class Parser(object):
         self.semantic_analyzer = SemanticAnalyzer(self.symbol_table)
         self.code_generator = CodeGenerator(self.symbol_table)
         self.current_identifier = None
+        self.follow = FOLLOW
+        self.non_terminal = 0
 
-    # def error_handler_panic_mode(self):
-    #     if self.top_stack in TERMINALS:
-    #         self.stack.pop()
-    #         print("yek paiane kam bud")
-    #
-    #         return
-    #
-    #     follow = self.follow[self.top_stack]
-    #     while self.next_token not in follow and self.next_token != "EOF":
-    #         print(self.next_token, "ezafe bud")
-    #         self.next_token = self.scanner.get_next_token()[0].value
-    #
-    #     if self.non_terminal == 1 and self.next_token != "EOF":
-    #         return
-    #
-    #     self.stack.pop()
-    #     print("kotah tarin ghaide ro")
-    #     return
+    def error_handler_panic_mode(self):
+        if self.top_stack in TERMINALS:
+            self.stack.pop()
+            print("yek paiane kam bud")
+
+            return
+
+        follow = self.follow[self.top_stack]
+        while self.next_token not in follow and self.next_token != "EOF":
+            print(self.next_token, "ezafe bud")
+            self.next_token = self.scanner.get_next_token()[0].value
+
+        if self.non_terminal == 1 and self.next_token != "EOF":
+            return
+
+        self.stack.pop()
+        print("kotah tarin ghaide ro")
+        return
 
     def run(self):
         must_get = False
         while True:
             self.top_stack = self.stack.top()
 
-            print(self.stack, self.next_token, self.current_identifier)
+            # print(self.stack, self.next_token, self.current_identifier)
             if self.top_stack in TERMINALS:
                 if must_get:
                     self.next_token = self.scanner.get_next_token()[0].value
@@ -71,8 +73,8 @@ class Parser(object):
                 if self.next_token in self.parser_table[self.top_stack]:
                     self.push_rule_to_stack(self.parser_table[self.top_stack][self.next_token])
                 else:
+                    print("error")
                     # self.error_handler_panic_mode()
-                    pass
 
                 self.top_stack = self.stack.top()
             elif self.top_stack.startswith("#"):
@@ -85,10 +87,10 @@ class Parser(object):
         rules = self.rule.split(" ")
         self.stack.pop()
         for action in reversed(rules):
-            # if action in NON_TERMINALS:
-                # self.non_terminal += 1
+            if action in NON_TERMINALS:
+                self.non_terminal += 1
             self.stack.push(action)
-        # self.non_terminal -= 2
+        self.non_terminal -= 2
         self.stack.pop()
 
 

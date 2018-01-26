@@ -1,3 +1,4 @@
+import SymbolTable
 from ScannerDFANode import Node, make_path
 from tokens import Tokens
 
@@ -5,13 +6,14 @@ from tokens import Tokens
 class Scanner(object):
     SIGN_PLUS = [Tokens.CLOSE_PARENTHESES, Tokens.IDENTIFIER, Tokens.INTEGER, Tokens.TRUE, Tokens.FALSE]
 
-    def __init__(self, address):
+    def __init__(self, address, symbol_table):
         self.begin = 0
         self.forward = 0
         self.root = None
         self.source_code = open(address).read()
         self.make_dfa()
         self.last_token = None
+        self.symbol_table = symbol_table
         # node_and_token = self.root, None
         # print(node_and_token[0].name)
         # for i in range(len(self.source_code)):
@@ -34,7 +36,7 @@ class Scanner(object):
             node_and_token = node_and_token[0].get_next_node(current_char, self.root)
             if node_and_token[1] is not None:
                 self.last_token = node_and_token[1]
-                return node_and_token[1], self.source_code[self.begin:self.forward]
+                return node_and_token[1], self.get_attribute(node_and_token[1])  # TODO: check None value
             self.forward += 1
             if self.forward >= len(self.source_code):
                 self.forward -= 1
@@ -134,8 +136,10 @@ class Scanner(object):
         make_path('true', self.root, letter, Tokens.TRUE)
         make_path('false', self.root, letter, Tokens.FALSE)
 
-
-a = Scanner('test1.java')
-
-for i in range(80):
-    print(a.get_next_token())
+    def get_attribute(self, token):
+        if token == Tokens.INTEGER:
+            return int(self.source_code[self.begin:self.forward])
+        elif token == Tokens.IDENTIFIER:
+            return self.symbol_table.get(self.source_code[self.begin:self.forward])
+        else:
+            return None

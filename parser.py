@@ -80,8 +80,11 @@ class Parser(object):
                     # self.error_handler_panic_mode()
 
                 self.top_stack = self.stack.top()
+
+            elif self.top_stack.startswith("@"):
+                eval('self.semantic_analyzer.%s(self.next_token)' % self.top_stack[1:])
+
             elif self.top_stack.startswith("#"):
-             #   eval('self.semantic_analyzer.%s(self.next_token)' % self.top_stack[1:])
                 eval('self.code_generator.%s(self.next_token)' % self.top_stack[1:])
                 self.stack.pop()
 

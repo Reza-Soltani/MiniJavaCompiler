@@ -54,6 +54,7 @@ class SemanticAnalyzer(object):
             type = self.semantic_stack[-2]
             address = self.semantic_stack[-1]
             list.append((type, address))
+
             self.semantic_stack.pop(2)
 
         self.semantic_stack.top()[1].parametrs = reversed(list)
@@ -103,6 +104,11 @@ class SemanticAnalyzer(object):
     def Check_less(self, last_token):
         pass
 
+    def immediate_integer(self, last_token):
+        pass
+
 
 class SemanticError(Exception):
     pass
+
+

@@ -2,7 +2,7 @@ from SemanticAnalyzer import SemanticAnalyzer
 from SymbolTable import OOPSymbolTable, SymbolTableRow
 from code_generator import CodeGenerator
 from stack import Stack
-from grammer import PARSER_TABEL, TERMINALS, NON_TERMINALS, GRAMMER, FOLLOW
+from grammer import PARSER_TABEL, TERMINALS, NON_TERMINALS, GRAMMAR, FOLLOW
 from scanner import Scanner
 from memory_manager import MemoryManager
 
@@ -22,7 +22,7 @@ class Parser(object):
         self.top_stack = self.stack.top()
         self.rule_number = None
         self.rule = ""
-        self.grammer = GRAMMER
+        self.grammar = GRAMMAR
         self.semantic_analyzer = SemanticAnalyzer(self.symbol_table, self.memory_manager, self.semantic_stack)
         self.code_generator = CodeGenerator(self.symbol_table, self.semantic_stack, self.memory_manager)
         self.current_identifier = None
@@ -80,13 +80,16 @@ class Parser(object):
                     # self.error_handler_panic_mode()
 
                 self.top_stack = self.stack.top()
+
             elif self.top_stack.startswith("@"):
                 eval('self.semantic_analyzer.%s(self.next_token)' % self.top_stack[1:])
-                # eval('self.code_generator.%s(self.next_token)' % self.top_stack[1:])
+
+            elif self.top_stack.startswith("#"):
+                eval('self.code_generator.%s(self.next_token)' % self.top_stack[1:])
                 self.stack.pop()
 
     def push_rule_to_stack(self, rule_number):
-        self.rule = self.grammer[rule_number]
+        self.rule = self.grammar[rule_number]
         rules = self.rule.split(" ")
         self.stack.pop()
         for action in reversed(rules):
@@ -95,6 +98,7 @@ class Parser(object):
             self.stack.push(action)
         self.non_terminal -= 2
         self.stack.pop()
+
 
 
 P = Parser('test1.java').run()

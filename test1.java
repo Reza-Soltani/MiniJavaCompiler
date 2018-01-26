@@ -9,7 +9,7 @@ class Cls3 extends Cls{
     static boolean d ;
     public static int test( int a , boolean b ) {
         int c;
-        c = 1;
+        c = -132;
         b = true ;
         return a + c ;
     }
@@ -17,7 +17,7 @@ class Cls3 extends Cls{
 public class Cls2 {
     public static void main( ) {
         int b;
-        b = 3;
+        b = 2 + -3;
         b = Cls.test( b, false );
         System.out.println(b);
     }

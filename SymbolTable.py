@@ -74,3 +74,6 @@ class OOPSymbolTable(object):
     def end_scope(self):
         # print('end scope ', self.current.name, self.current.top_scope.name)
         self.current = self.current.top_scope
+
+    def get_class_table(self, name):
+        return self.classes[name]

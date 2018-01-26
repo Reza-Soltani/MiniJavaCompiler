@@ -47,6 +47,7 @@ class SemanticAnalyzer(object):
                 return
             type = self.semantic_stack[-2]
             self.semantic_stack[-1][1].tp = type
+
             self.semantic_stack[-1][1].address = self.memory_manager.get_variable()
             list.append(self.semantic_stack[-1][1])
             self.semantic_stack.pop(2)
@@ -100,3 +101,8 @@ class SemanticAnalyzer(object):
 
     def Check_less(self, last_token):
         pass
+
+    def immediate_integer(self, last_token):
+        pass
+
+

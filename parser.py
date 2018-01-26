@@ -4,6 +4,7 @@ from code_generator import CodeGenerator
 from stack import Stack
 from grammer import PARSER_TABEL, TERMINALS, NON_TERMINALS, GRAMMER, FOLLOW
 from scanner import Scanner
+from memory_manager import MemoryManager
 
 
 class Parser(object):
@@ -14,14 +15,16 @@ class Parser(object):
         self.stack.push("Source")
         self.parser_table = PARSER_TABEL
         self.symbol_table = OOPSymbolTable()
+        self.semantic_stack = Stack()
+        self.memory_manager = MemoryManager(0)
         self.scanner = Scanner(file_name, self.symbol_table)
-        self.next_token = self.scanner.get_next_token()[0].value
+        self.next_token = self.scanner.get_next_token()
         self.top_stack = self.stack.top()
         self.rule_number = None
         self.rule = ""
         self.grammer = GRAMMER
-        self.semantic_analyzer = SemanticAnalyzer(self.symbol_table)
-        self.code_generator = CodeGenerator(self.symbol_table)
+        self.semantic_analyzer = SemanticAnalyzer(self.symbol_table, self.memory_manager, self.semantic_stack)
+        self.code_generator = CodeGenerator(self.symbol_table, self.semantic_stack, self.memory_manager)
         self.current_identifier = None
         self.follow = FOLLOW
         self.non_terminal = 0
@@ -53,10 +56,10 @@ class Parser(object):
             # print(self.stack, self.next_token, self.current_identifier)
             if self.top_stack in TERMINALS:
                 if must_get:
-                    self.next_token = self.scanner.get_next_token()[0].value
+                    self.next_token = self.scanner.get_next_token()
                     must_get = False
-                if self.next_token == self.top_stack:
-                    if self.next_token == 'EOF':
+                if self.next_token[0].value == self.top_stack:
+                    if self.next_token[0].value == 'EOF':
                         break
                     self.stack.pop()
                     must_get = True
@@ -66,19 +69,19 @@ class Parser(object):
 
             elif self.top_stack in NON_TERMINALS:
                 if must_get:
-                    tmp = self.scanner.get_next_token()
-                    self.next_token = tmp[0].value
-                    self.current_identifier = tmp[1]
+                    self.next_token = self.scanner.get_next_token()
+                    # self.next_token = tmp[0].value
+                    # self.current_identifier = tmp[1]
                     must_get = False
-                if self.next_token in self.parser_table[self.top_stack]:
-                    self.push_rule_to_stack(self.parser_table[self.top_stack][self.next_token])
+                if self.next_token[0].value in self.parser_table[self.top_stack]:
+                    self.push_rule_to_stack(self.parser_table[self.top_stack][self.next_token[0].value])
                 else:
                     print("error")
                     # self.error_handler_panic_mode()
 
                 self.top_stack = self.stack.top()
             elif self.top_stack.startswith("#"):
-                eval('self.semantic_analyzer.%s(self.current_identifier)' % self.top_stack[1:])
+                eval('self.semantic_analyzer.%s(self.next_token)' % self.top_stack[1:])
                 # eval('self.code_generator.%s(self.next_token)' % self.top_stack[1:])
                 self.stack.pop()
 

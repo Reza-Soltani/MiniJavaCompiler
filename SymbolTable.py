@@ -3,6 +3,8 @@ class SymbolTableRow(object):
         self.name = name
         self.address = address
         self.tp = tp
+        self.return_type = None
+        self.parametrs = []
 
 
 class SymbolTable(object):

@@ -9,52 +9,54 @@ class SemanticAnalyzer(object):
 
     def set_local_search(self, current_token):
         self.symbol_table.local_search = True
-        pass
 
     def reset_local_search(self, current_token):
-        if current_token[1].address is None:
-            current_token[1].address = self.memory_manager.get_variable()
-            # print("**************", current_token, self.semantic_stack.top().name)
-            current_token[1].tp = self.semantic_stack.top()
-            self.semantic_stack.pop()
-            if current_token[1].tp == VaribaleType.METHOD:
-                print("see method", self.semantic_stack[-1])
-                current_token[1].return_type = self.semantic_stack[-1]
-                self.semantic_stack.pop()
-                self.semantic_stack.push(current_token)
-                self.semantic_stack.push(0)
-        else:
-            print("ridiiiiiiiiiiiiiiiiii")
         self.symbol_table.local_search = False
-        pass
 
-    def identifier_parametr(self, current_token):
-        type = self.semantic_stack.top()
-        number = self.semantic_stack[-2]
-        self.semantic_stack.pop(2)
+    def identifier(self, current_token):
+        if self.symbol_table.local_search:
+            # we know type of current token, we already define this variable in this scope
+            if current_token[1].tp is not None:
+                raise SemanticError("{} is already define in this scope".format(current_token[1].name))
+            else:
+                current_token[1].tp = self.semantic_stack.top()
+                self.semantic_stack.pop()
+                if current_token[1].tp is not VaribaleType.CLASS:
+                    current_token[1].address = self.memory_manager.get_variable()
+
+                if current_token[1].tp is VaribaleType.METHOD:
+                    current_token[1].return_type = self.semantic_stack.top()
+                    self.semantic_stack.pop()
+        else:
+            # we don't know type of current token, we don't define this variable in this scope
+            if current_token[1].tp is None:
+                raise SemanticError("{} is not define in this scope".format(current_token[1].name))
+
+    def add_row(self, current_token):
+        self.semantic_stack.push(current_token[1])
+        self.semantic_stack.push(0)
+
+    def identifier_parameter(self, current_token):
+        identifier = self.semantic_stack.top()
+        type = self.semantic_stack[-2]
+        number = self.semantic_stack[-3]
+        self.semantic_stack.pop(3)
         self.semantic_stack.push(type)
-        self.semantic_stack.push(current_token)
+        self.semantic_stack.push(identifier)
         self.semantic_stack.push(number+1)
 
-    def end_parametr(self, current_token):
+    def end_parameter(self, current_token):
         number = self.semantic_stack.top()
         self.semantic_stack.pop()
         list = []
 
         for i in range(number):
-            if self.semantic_stack[-1][1].address is not None:
-                print("bazaaam rididiii")
-                return
             type = self.semantic_stack[-2]
-            self.semantic_stack[-1][1].tp = type
-            self.semantic_stack[-1][1].address = self.memory_manager.get_variable()
-            list.append(self.semantic_stack[-1][1])
+            address = self.semantic_stack[-1]
+            list.append((type, address))
             self.semantic_stack.pop(2)
 
         self.semantic_stack.top()[1].parametrs = reversed(list)
-        # print("###########", number, self.semantic_stack.top()[1].tp, self.semantic_stack.top()[1].name, self.semantic_stack.top()[1].parametrs)
-        self.semantic_stack.pop()
-        self.symbol_table.local_search = False
 
     def create_extend(self, current_token):
         self.symbol_table.extend_flag = True
@@ -68,16 +70,16 @@ class SemanticAnalyzer(object):
         self.symbol_table.end_scope()
         pass
 
-    def identifier_int(self, last_token):
+    def identifier_int(self, current_token):
         self.semantic_stack.push(VaribaleType.INT)
 
-    def identifier_boolean(self, last_token):
+    def identifier_boolean(self, current_token):
         self.semantic_stack.push(VaribaleType.BOOLEAN)
 
-    def identifier_method(self, last_token):
+    def identifier_method(self, current_token):
         self.semantic_stack.push(VaribaleType.METHOD)
 
-    def identifier_class(self, last_token):
+    def identifier_class(self, current_token):
         self.semantic_stack.push(VaribaleType.CLASS)
 
     def Pid(self, last_token):
@@ -100,3 +102,7 @@ class SemanticAnalyzer(object):
 
     def Check_less(self, last_token):
         pass
+
+
+class SemanticError(Exception):
+    pass

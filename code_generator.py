@@ -1,7 +1,17 @@
-from enum import Enum
-from constant import Commands, VaribaleType
+from constant import Commands
 
-from tokens import Tokens
+
+def make_command(command, first=None, second=None, third=None):
+    row = "( " + command.value + ", " + str(first)
+    if second is not None:
+        row += ', ' + str(second)
+    else:
+        return row + ', , )'
+    if third is not None:
+        row += ', ' + str(third)
+    else:
+        return row + ', )'
+    return row + " )"
 
 
 class CodeGenerator(object):
@@ -11,48 +21,76 @@ class CodeGenerator(object):
         self.memory_manager = memory_manager
         self.program_block = []
 
-    def make_command(self, command, first=None, second=None, third=None):
-        row = "(" + command.value + "," + str(first)
-        if second is not None:
-            row += str(second)
-        else:
-            return row + ',,)'
-        if third is not None:
-            row += str(third)
-        else:
-            return row + ',)'
-        return row + ")"
+    def end_for(self, current_token):
+        self.end_while(current_token)
 
-    def Pid(self, current_token):
-        address = current_token[1].address
-        self.semantic_stack.push(address)
-
-    def assign(self, current_token):
-        command = self.make_command(Commands.ASSIGN, self.semantic_stack[-1], self.semantic_stack[-2])
-        self.program_block.append(command)
+    def plus_assign(self, current_token):
+        self.program_block.append(make_command(Commands.ADD,
+                                               self.semantic_stack[-1],
+                                               self.semantic_stack[-2],
+                                               self.semantic_stack[-2]))
         self.semantic_stack.pop(2)
 
-    def Cmp_save(self, current_token):
-        self.program_block.append("")
+    def end_while(self, current_token):
+        self.program_block.append(make_command(Commands.JP,
+                                               self.semantic_stack[-3]))
+        self.program_block[self.semantic_stack[-1]] = make_command(Commands.JPF,
+                                                                        self.semantic_stack[-2],
+                                                                        len(self.program_block))
+        self.semantic_stack.pop(3)
+
+    def label(self, current_token):
         self.semantic_stack.push(len(self.program_block))
 
-    def Int(self, current_token):
-        self.semantic_stack.push('#' + current_token[0].value)
+    def save(self, current_token):
+        self.semantic_stack.push(len(self.program_block))
+        self.program_block.append('')
 
-    def For(self, current_token):
-        command = self.make_command(Commands.ADD, self.semantic_stack[-2], self.semantic_stack[-1], self.semantic_stack[-2])
-        self.program_block.append(command)
-        command = self.make_command(Commands.JP, self.semantic_stack[-3] - 1)
-        self.program_block.append(command)
-        command = self.make_command(Commands.JPF, self.semantic_stack[-4], len(self.program_block) + 1)
-        self.program_block[self.semantic_stack[-3]] = command
-        self.semantic_stack.pop(5)
+    def jpf_save(self, current_token):
+        self.save(current_token)
+        self.program_block[self.semantic_stack[-2]] = make_command(Commands.JPF,
+                                                                        self.semantic_stack[-3],
+                                                                        len(self.program_block))
+        tmp = self.semantic_stack[-1]
+        self.semantic_stack.pop(3)
+        self.semantic_stack.push(tmp)
 
-    def Check_equal(self, current_token):
-        pass
+    def jump_here(self, current_token):
+        self.program_block[self.semantic_stack[-1]] = make_command(Commands.JP,
+                                                                        len(self.program_block))
+        self.semantic_stack.pop(1)
 
-    def Check_less(self, current_token):
-        pass
+    def sys_out(self, current_token):
+        self.program_block.append(make_command(Commands.PRINT,
+                                               self.semantic_stack[-1]))
+        self.semantic_stack.pop(1)
+
+    def and_operation(self, current_token):
+        tmp = self.memory_manager.get_temp()
+        self.program_block.append(make_command(Commands.AND,
+                                               self.semantic_stack[-2],
+                                               self.semantic_stack[-1],
+                                               tmp))
+        self.semantic_stack.pop(2)
+        self.semantic_stack.push(tmp)
+
+    def rel_equal(self, current_token):
+        tmp = self.memory_manager.get_temp()
+        self.program_block.append(make_command(Commands.EQ,
+                                               self.semantic_stack[-2],
+                                               self.semantic_stack[-1],
+                                               tmp))
+        self.semantic_stack.pop(2)
+        self.semantic_stack.push(tmp)
+
+    def rel_less(self, current_token):
+        tmp = self.memory_manager.get_temp()
+        self.program_block.append(make_command(Commands.LT,
+                                               self.semantic_stack[-2],
+                                               self.semantic_stack[-1],
+                                               tmp))
+        self.semantic_stack.pop(2)
+        self.semantic_stack.push(tmp)
 
     def immediate_integer(self, last_token):
         self.semantic_stack.push('#' + str(last_token[1]))
@@ -64,7 +102,7 @@ class CodeGenerator(object):
         self.semantic_stack.push(last_token[1].name)
 
     def immediate_bool(self, last_token):
-        self.semantic_stack.push(last_token.value)
+        self.semantic_stack.push(last_token[0].value)
 
     def aggregate(self, last_token):
         tmp = self.symbol_table.get_class_table(self.semantic_stack[-2]).get(last_token[1].name).address
@@ -72,36 +110,37 @@ class CodeGenerator(object):
         self.semantic_stack.push(tmp)
 
     def multi_operation(self, last_token):
-        tmp = self.memory_manager.get_variable()
-        self.program_block.append(self.make_command(Commands.MULT,
-                                                    self.semantic_stack[-2],
-                                                    self.semantic_stack[-1],
-                                                    tmp))
+        tmp = self.memory_manager.get_temp()
+        self.program_block.append(make_command(Commands.MULT,
+                                               self.semantic_stack[-2],
+                                               self.semantic_stack[-1],
+                                               tmp))
         self.semantic_stack.pop(2)
         self.semantic_stack.push(tmp)
 
     def plus_operation(self, last_token):
-        tmp = self.memory_manager.get_variable()
-        self.program_block.append(self.make_command(Commands.ADD,
-                                                    self.semantic_stack[-2],
-                                                    self.semantic_stack[-1],
-                                                    tmp))
+        tmp = self.memory_manager.get_temp()
+        self.program_block.append(make_command(Commands.ADD,
+                                               self.semantic_stack[-2],
+                                               self.semantic_stack[-1],
+                                               tmp))
         self.semantic_stack.pop(2)
         self.semantic_stack.push(tmp)
 
     def minus_operation(self, last_token):
-        tmp = self.memory_manager.get_variable()
-        self.program_block.append(self.make_command(Commands.SUB,
-                                                    self.semantic_stack[-2],
-                                                    self.semantic_stack[-1],
-                                                    tmp))
+        tmp = self.memory_manager.get_temp()
+        self.program_block.append(make_command(Commands.SUB,
+                                               self.semantic_stack[-2],
+                                               self.semantic_stack[-1],
+                                               tmp))
         self.semantic_stack.pop(2)
         self.semantic_stack.push(tmp)
 
     def assign(self, last_token):
-        self.program_block.append(self.make_command(Commands.ASSIGN,
-                                                    self.semantic_stack[-1],
-                                                    self.semantic_stack[-2]))
+        self.program_block.append(make_command(Commands.ASSIGN,
+                                               self.semantic_stack[-1],
+                                               self.semantic_stack[-2]))
+        self.semantic_stack.pop(2)
 
     def identifier_class(self, last_token):
         pass
@@ -122,5 +161,5 @@ class CodeGenerator(object):
         pass
 
     def output_pb(self):
-        for i in self.program_block:
-            print(i)
+        for i in range(len(self.program_block)):
+            print('{}: '.format(i), self.program_block[i])

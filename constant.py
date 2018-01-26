@@ -15,7 +15,7 @@ class Commands(Enum):
     PRINT = 'PRINT'
 
 
-class VaribaleType(Enum):
+class VariableType(Enum):
     BOOLEAN = "BOOLEAN"
     INT = "INT"
     CLASS = "CLASS"

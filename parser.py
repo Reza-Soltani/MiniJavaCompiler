@@ -16,7 +16,7 @@ class Parser(object):
         self.parser_table = PARSER_TABEL
         self.symbol_table = OOPSymbolTable()
         self.semantic_stack = Stack()
-        self.memory_manager = MemoryManager(0)
+        self.memory_manager = MemoryManager(0, 1000)
         self.scanner = Scanner(file_name, self.symbol_table)
         self.next_token = self.scanner.get_next_token()
         self.top_stack = self.stack.top()

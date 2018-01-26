@@ -1,4 +1,4 @@
-from constant import VaribaleType
+from constant import VariableType
 
 
 class SemanticAnalyzer(object):
@@ -21,10 +21,10 @@ class SemanticAnalyzer(object):
             else:
                 current_token[1].tp = self.semantic_stack.top()
                 self.semantic_stack.pop()
-                if current_token[1].tp is not VaribaleType.CLASS:
+                if current_token[1].tp is not VariableType.CLASS:
                     current_token[1].address = self.memory_manager.get_variable()
 
-                if current_token[1].tp is VaribaleType.METHOD:
+                if current_token[1].tp is VariableType.METHOD:
                     current_token[1].return_type = self.semantic_stack.top()
                     self.semantic_stack.pop()
         else:
@@ -72,16 +72,16 @@ class SemanticAnalyzer(object):
         pass
 
     def identifier_int(self, current_token):
-        self.semantic_stack.push(VaribaleType.INT)
+        self.semantic_stack.push(VariableType.INT)
 
     def identifier_boolean(self, current_token):
-        self.semantic_stack.push(VaribaleType.BOOLEAN)
+        self.semantic_stack.push(VariableType.BOOLEAN)
 
     def identifier_method(self, current_token):
-        self.semantic_stack.push(VaribaleType.METHOD)
+        self.semantic_stack.push(VariableType.METHOD)
 
     def identifier_class(self, current_token):
-        self.semantic_stack.push(VaribaleType.CLASS)
+        self.semantic_stack.push(VariableType.CLASS)
 
     def Pid(self, last_token):
         pass

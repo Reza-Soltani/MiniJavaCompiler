@@ -1,7 +1,9 @@
+from SemanticAnalyzer import SemanticAnalyzer
+from SymbolTable import OOPSymbolTable, SymbolTableRow
+from code_generator import CodeGenerator
 from stack import Stack
 from grammer import PARSER_TABEL, TERMINALS, NON_TERMINALS, GRAMMER, FOLLOW
 from scanner import Scanner
-from code_generator import Genarator
 
 
 class Parser(object):
@@ -10,77 +12,83 @@ class Parser(object):
         self.stack = Stack()
         self.stack.push("EOF")
         self.stack.push("Source")
-        self.non_terminal = 1
         self.parser_table = PARSER_TABEL
-        self.scanner = Scanner(file_name)
+        self.symbol_table = OOPSymbolTable()
+        self.scanner = Scanner(file_name, self.symbol_table)
         self.next_token = self.scanner.get_next_token()[0].value
         self.top_stack = self.stack.top()
+        self.rule_number = None
         self.rule = ""
         self.grammer = GRAMMER
-        self.follow = FOLLOW
-        self.code_generator = Genarator()
+        self.semantic_analyzer = SemanticAnalyzer(self.symbol_table)
+        self.code_generator = CodeGenerator(self.symbol_table)
+        self.current_identifier = None
 
-    def error_handler_panic_mode(self):
-        if self.top_stack in TERMINALS:
-            self.stack.pop()
-            print("yek paiane kam bud")
-
-            return
-
-        follow = self.follow[self.top_stack]
-        while self.next_token not in follow and self.next_token != "EOF":
-            print(self.next_token, "ezafe bud")
-            self.next_token = self.scanner.get_next_token()[0].value
-
-        if self.non_terminal == 1 and self.next_token != "EOF":
-            return
-
-        self.stack.pop()
-        print("kotah tarin ghaide ro")
-        return
+    # def error_handler_panic_mode(self):
+    #     if self.top_stack in TERMINALS:
+    #         self.stack.pop()
+    #         print("yek paiane kam bud")
+    #
+    #         return
+    #
+    #     follow = self.follow[self.top_stack]
+    #     while self.next_token not in follow and self.next_token != "EOF":
+    #         print(self.next_token, "ezafe bud")
+    #         self.next_token = self.scanner.get_next_token()[0].value
+    #
+    #     if self.non_terminal == 1 and self.next_token != "EOF":
+    #         return
+    #
+    #     self.stack.pop()
+    #     print("kotah tarin ghaide ro")
+    #     return
 
     def run(self):
+        must_get = False
         while True:
-            if self.top_stack == 'EOF':
-                return
             self.top_stack = self.stack.top()
-            if self.top_stack.startswith("#"):
-                self.code_generator()
 
-            print(self.stack, self.next_token, self.top_stack)
+            print(self.stack, self.next_token, self.current_identifier)
             if self.top_stack in TERMINALS:
-                print("find terminal")
+                if must_get:
+                    self.next_token = self.scanner.get_next_token()[0].value
+                    must_get = False
                 if self.next_token == self.top_stack:
-                    print("match terminal")
                     if self.next_token == 'EOF':
                         break
                     self.stack.pop()
-                    self.next_token = self.scanner.get_next_token()[0].value
-
+                    must_get = True
                 else:
                     print("see error")
-                    self.error_handler_panic_mode()
+                    # self.error_handler_panic_mode()
 
             elif self.top_stack in NON_TERMINALS:
-                print("find non terminal")
+                if must_get:
+                    tmp = self.scanner.get_next_token()
+                    self.next_token = tmp[0].value
+                    self.current_identifier = tmp[1]
+                    must_get = False
                 if self.next_token in self.parser_table[self.top_stack]:
-                    print("match non terminal")
                     self.push_rule_to_stack(self.parser_table[self.top_stack][self.next_token])
                 else:
-                    self.error_handler_panic_mode()
+                    # self.error_handler_panic_mode()
+                    pass
 
                 self.top_stack = self.stack.top()
+            elif self.top_stack.startswith("#"):
+                eval('self.semantic_analyzer.%s(self.current_identifier)' % self.top_stack[1:])
+                # eval('self.code_generator.%s(self.next_token)' % self.top_stack[1:])
+                self.stack.pop()
 
     def push_rule_to_stack(self, rule_number):
         self.rule = self.grammer[rule_number]
         rules = self.rule.split(" ")
         self.stack.pop()
-        print('***** ' + str(rules))
         for action in reversed(rules):
-            if action in NON_TERMINALS:
-                self.non_terminal += 1
+            # if action in NON_TERMINALS:
+                # self.non_terminal += 1
             self.stack.push(action)
-        self.non_terminal -= 2
+        # self.non_terminal -= 2
         self.stack.pop()
 
 

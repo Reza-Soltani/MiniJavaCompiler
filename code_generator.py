@@ -28,12 +28,12 @@ class CodeGenerator(object):
     def call_method(self, current_token):
         ted = self.semantic_stack[-1]
         self.semantic_stack.pop(1)
-        args = self.semantic_stack[-ted:]
+        if ted > 0:
+            args = self.semantic_stack[-ted:]
+        else:
+            args = []
         self.semantic_stack.pop(ted)
-        if len(args) < len(self.semantic_stack[-1].parameters):
-            raise Exception('Expected more arguments')
-        if len(args) > len(self.semantic_stack[-1].parameters):
-            raise Exception('Expected less arguments')
+
         for i in range(len(args)):
             self.program_block.append(make_command(Commands.ASSIGN,
                                                    args[i],

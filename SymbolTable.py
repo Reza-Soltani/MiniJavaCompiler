@@ -1,3 +1,7 @@
+from error_handler import ErrorHandler
+from constant import ErrorType
+
+
 class SymbolTableRow(object):
     def __init__(self, name, address=None, tp=None):
         self.name = name
@@ -43,10 +47,14 @@ class OOPSymbolTable(object):
         self.extend_flag = False
         self.classes = dict()
         self.top_scope = None
+        self.error_handler = ErrorHandler()
 
     def get(self, name):
         if self.extend_flag:
-            self.current.father = self.classes[name]
+            try:
+                self.current.father = self.classes[name]
+            except:
+                self.error_handler.rasie_error(ErrorType.Semantic, "can't resolve symbol")
             # print('father ', self.current.name, name)
             self.extend_flag = False
         if self.local_search:

@@ -20,3 +20,7 @@ class MemoryManager(object):
         self.type_dict[ret] = tp
         self.temp += 4
         return ret
+
+    def get_tp(self, address):
+        return self.type_dict[address]
+

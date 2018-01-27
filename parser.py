@@ -35,6 +35,7 @@ class Parser(object):
 
     def error_handler_panic_mode(self):
         if self.top_stack in TERMINALS:
+            print(self.top_stack)
             self.stack.pop()
             self.must_get = False
             self.error_handler.rasie_error(ErrorType.Pars, "{} is left".format(self.top_stack))
@@ -45,9 +46,11 @@ class Parser(object):
             self.error_handler.rasie_error(ErrorType.Pars, "{} is addition".format(self.next_token[0].value))
             self.next_token = self.scanner.get_next_token()
 
-        if self.non_terminal == 1 and self.next_token != "EOF":
+        if self.non_terminal == 1 and self.next_token[0].value != "EOF":
             self.must_get = False
             return
+        if self.next_token[0].value == 'EOF':
+            self.generate_code()
 
         self.stack.pop()
         self.must_get = False
@@ -87,7 +90,7 @@ class Parser(object):
             elif self.top_stack.startswith("#"):
                 eval('self.code_generator.%s(self.next_token)' % self.top_stack[1:])
                 self.stack.pop()
-        self.code_generator.output_pb()
+        self.generate_code()
 
     def push_rule_to_stack(self, rule_number):
         self.rule = self.grammar[rule_number]
@@ -99,6 +102,9 @@ class Parser(object):
             self.stack.push(action)
         self.non_terminal -= 2
         self.stack.pop()
+
+    def generate_code(self):
+        self.code_generator.output_pb()
 
 
 if __name__ == '__main__':

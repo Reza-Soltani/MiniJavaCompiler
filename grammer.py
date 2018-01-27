@@ -68,7 +68,7 @@ GRAMMAR = {
     56: "F == Expression #rel_equal",
     57: "F < Expression #rel_less",
     58: "Arguments @add_zero GenExpression @save_argument Argument",
-    59: "Arguments",
+    59: "Arguments @add_zero",
     60: "Argument , GenExpression @save_argument Argument",
     61: "Argument",
     62: "Identifier identifier @identifier #identifier",

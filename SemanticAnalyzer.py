@@ -119,15 +119,26 @@ class SemanticAnalyzer(object):
         self.semantic_stack.push(ted)
 
     def return_assign(self, current_token):
-        return_type = self.semantic_stack[-2].return_type.value
-        value_type = self.memory_manager.get_tp(self.semantic_stack[-1]).value
+        return_type = self.semantic_stack[-2].return_type
+
+        if isinstance(self.semantic_stack[-1], str):
+            if self.semantic_stack[-1].startswith("#"):
+                value_type = VariableType.INT
+            else:
+                value_type = VariableType.BOOLEAN
+        else:
+            value_type = self.memory_manager.get_tp(self.semantic_stack[-1])
+
         if return_type != value_type:
             self.error_handler.rasie_error(ErrorType.Semantic, 'Incompatible types. \n Required: {} \n Found: {}'.format(return_type, value_type))
 
     def call_method(self, current_token):
         ted = self.semantic_stack[-1]
         self.semantic_stack.pop(1)
-        args = self.semantic_stack[-ted:]
+        if ted > 0:
+            args = self.semantic_stack[-ted:]
+        else:
+            args = []
 
         if len(args) < len(self.semantic_stack[-1 - ted].parameters):
             self.error_handler.rasie_error(ErrorType.Semantic, 'Expected more arguments')

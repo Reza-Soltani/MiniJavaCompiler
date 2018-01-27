@@ -185,6 +185,8 @@ class CodeGenerator(object):
                                              len(self.program_block))
 
     def output_pb(self):
+        if self.program_block[0] == "":
+            print('Fatal Error! No main class declared')
         with open("output.txt", "w") as result:
             for i in range(len(self.program_block)):
                 result.write(str(i) + "\t" + self.program_block[i] + "\n")

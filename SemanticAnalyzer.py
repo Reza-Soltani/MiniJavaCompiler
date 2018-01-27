@@ -30,7 +30,7 @@ class SemanticAnalyzer(object):
                 current_token[1].tp = self.semantic_stack.top()
                 self.semantic_stack.pop()
                 if current_token[1].tp is not VariableType.CLASS:
-                    current_token[1].address = self.memory_manager.get_variable()
+                    current_token[1].address = self.memory_manager.get_variable(current_token[1].tp)
 
                 if current_token[1].tp is VariableType.METHOD:
                     current_token[1].return_type = self.semantic_stack.top()

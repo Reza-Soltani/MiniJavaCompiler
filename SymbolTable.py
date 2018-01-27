@@ -26,7 +26,6 @@ class SymbolTable(object):
 
     def global_search(self, name):
         for row in reversed(self.table):
-          #  print(row, name)
             if row.name == name:
                 return row
         return None

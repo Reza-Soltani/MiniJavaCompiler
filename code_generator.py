@@ -100,7 +100,7 @@ class CodeGenerator(object):
         self.semantic_stack.pop(1)
 
     def and_operation(self, current_token):
-        tmp = self.memory_manager.get_temp()
+        tmp = self.memory_manager.get_temp(VariableType.BOOLEAN)
         self.program_block.append(make_command(Commands.AND,
                                                self.semantic_stack[-2],
                                                self.semantic_stack[-1],
@@ -109,7 +109,7 @@ class CodeGenerator(object):
         self.semantic_stack.push(tmp)
 
     def rel_equal(self, current_token):
-        tmp = self.memory_manager.get_temp()
+        tmp = self.memory_manager.get_temp(VariableType.BOOLEAN)
         self.program_block.append(make_command(Commands.EQ,
                                                self.semantic_stack[-2],
                                                self.semantic_stack[-1],
@@ -118,7 +118,7 @@ class CodeGenerator(object):
         self.semantic_stack.push(tmp)
 
     def rel_less(self, current_token):
-        tmp = self.memory_manager.get_temp()
+        tmp = self.memory_manager.get_temp(VariableType.BOOLEAN)
         self.program_block.append(make_command(Commands.LT,
                                                self.semantic_stack[-2],
                                                self.semantic_stack[-1],
@@ -147,7 +147,7 @@ class CodeGenerator(object):
     #     self.semantic_stack.push(tmp)
 
     def multi_operation(self, last_token):
-        tmp = self.memory_manager.get_temp()
+        tmp = self.memory_manager.get_temp(VariableType.INT)
         self.program_block.append(make_command(Commands.MULT,
                                                self.semantic_stack[-2],
                                                self.semantic_stack[-1],
@@ -156,7 +156,7 @@ class CodeGenerator(object):
         self.semantic_stack.push(tmp)
 
     def plus_operation(self, last_token):
-        tmp = self.memory_manager.get_temp()
+        tmp = self.memory_manager.get_temp(VariableType.INT)
         self.program_block.append(make_command(Commands.ADD,
                                                self.semantic_stack[-2],
                                                self.semantic_stack[-1],
@@ -165,7 +165,7 @@ class CodeGenerator(object):
         self.semantic_stack.push(tmp)
 
     def minus_operation(self, last_token):
-        tmp = self.memory_manager.get_temp()
+        tmp = self.memory_manager.get_temp(VariableType.INT)
         self.program_block.append(make_command(Commands.SUB,
                                                self.semantic_stack[-2],
                                                self.semantic_stack[-1],

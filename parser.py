@@ -25,13 +25,14 @@ class Parser(object):
         self.rule_number = None
         self.rule = ""
         self.grammar = GRAMMAR
-        self.semantic_analyzer = SemanticAnalyzer(self.symbol_table, self.memory_manager, self.semantic_stack)
+        self.error_handler = ErrorHandler(self.scanner)
+        self.symbol_table.set_error_handler(self.error_handler)
+        self.semantic_analyzer = SemanticAnalyzer(self.symbol_table, self.memory_manager, self.semantic_stack, self.error_handler)
         self.code_generator = CodeGenerator(self.symbol_table, self.semantic_stack, self.memory_manager)
         self.current_identifier = None
         self.follow = FOLLOW
         self.non_terminal = 0
         self.must_get = False
-        self.error_handler = ErrorHandler()
 
     def error_handler_panic_mode(self):
         if self.top_stack in TERMINALS:
@@ -43,7 +44,7 @@ class Parser(object):
 
         follow = self.follow[self.top_stack]
         while self.next_token[0].value not in follow and self.next_token[0].value != "EOF":
-            self.error_handler.rasie_error(ErrorType.Pars, "{} is addition".format(self.next_token[0].value))
+            self.error_handler.rasie_error(ErrorType.Pars, "{} not allowed to be here!".format(self.next_token[0].value))
             self.next_token = self.scanner.get_next_token()
 
         if self.non_terminal == 1 and self.next_token[0].value != "EOF":

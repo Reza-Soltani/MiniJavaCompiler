@@ -47,7 +47,10 @@ class OOPSymbolTable(object):
         self.extend_flag = False
         self.classes = dict()
         self.top_scope = None
-        self.error_handler = ErrorHandler()
+        self.error_handler = None
+
+    def set_error_handler(self, error_handler):
+        self.error_handler = error_handler
 
     def get(self, name):
         if self.extend_flag:

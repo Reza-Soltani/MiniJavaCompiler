@@ -3,11 +3,11 @@ from error_handler import ErrorHandler
 
 
 class SemanticAnalyzer(object):
-    def __init__(self, symbol_table, memory_manager, semantic_stack):
+    def __init__(self, symbol_table, memory_manager, semantic_stack, error_handler):
         self.symbol_table = symbol_table
         self.memory_manager = memory_manager
         self.semantic_stack = semantic_stack
-        self.error_handler = ErrorHandler()
+        self.error_handler = error_handler
         self.method_cnt = 0
 
     def set_local_search(self, current_token):
@@ -49,7 +49,7 @@ class SemanticAnalyzer(object):
         else:
             # we don't know type of current token, we didn't define this variable in this scope
             if current_token[1] is None:
-                self.error_handler.rasie_error(ErrorType.Semantic, "can't resolve symbol")
+                self.error_handler.rasie_error(ErrorType.Semantic, "Can not resolve symbol @")
 
     def add_row(self, current_token):
         self.semantic_stack.push(0)
@@ -120,7 +120,7 @@ class SemanticAnalyzer(object):
 
     def return_assign(self, current_token):
         return_type = self.semantic_stack[-2].return_type.value
-        value_type  = self.get_type(self.semantic_stack[-1])
+        value_type = self.get_type(self.semantic_stack[-1])
 
         if return_type != value_type:
             self.error_handler.rasie_error(ErrorType.Semantic, 'Incompatible types. \n Required: {} \n Found: {}'.format(return_type, value_type))
@@ -159,35 +159,35 @@ class SemanticAnalyzer(object):
         first_type = self.get_type(self.semantic_stack[-1])
         second_type = self.get_type(self.semantic_stack[-2])
 
-        if first_type == VariableType.BOOLEAN.value and second_type == VariableType.BOOLEAN.value:
+        if first_type == VariableType.BOOLEAN.value or second_type == VariableType.BOOLEAN.value:
             self.error_handler.rasie_error(ErrorType.Semantic, "< operation can't be applied to boolean")
 
-    def not_bool_equal(self, last_token):
+    def not_int_and(self, last_token):
         first_type = self.get_type(self.semantic_stack[-1])
         second_type = self.get_type(self.semantic_stack[-2])
 
-        if first_type == VariableType.BOOLEAN.value and second_type == VariableType.BOOLEAN.value:
-            self.error_handler.rasie_error(ErrorType.Semantic, " == operation can't be applied to boolean")
+        if first_type == VariableType.INT.value or second_type == VariableType.INT.value:
+            self.error_handler.rasie_error(ErrorType.Semantic, " && operation can't be applied to int")
 
     def not_bool_add(self, last_token):
         first_type = self.get_type(self.semantic_stack[-1])
         second_type = self.get_type(self.semantic_stack[-2])
 
-        if first_type == VariableType.BOOLEAN.value and second_type == VariableType.BOOLEAN.value:
+        if first_type == VariableType.BOOLEAN.value or second_type == VariableType.BOOLEAN.value:
             self.error_handler.rasie_error(ErrorType.Semantic, " + operation can't be applied to boolean")
 
     def not_bool_mult(self, last_token):
         first_type = self.get_type(self.semantic_stack[-1])
         second_type = self.get_type(self.semantic_stack[-2])
 
-        if first_type == VariableType.BOOLEAN.value and second_type == VariableType.BOOLEAN.value:
+        if first_type == VariableType.BOOLEAN.value or second_type == VariableType.BOOLEAN.value:
             self.error_handler.rasie_error(ErrorType.Semantic, "* operation can't be applied to boolean")
 
     def not_bool_minus(self, last_token):
         first_type = self.get_type(self.semantic_stack[-1])
         second_type = self.get_type(self.semantic_stack[-2])
 
-        if first_type == VariableType.BOOLEAN.value and second_type == VariableType.BOOLEAN.value:
+        if first_type == VariableType.BOOLEAN.value or second_type == VariableType.BOOLEAN.value:
             self.error_handler.rasie_error(ErrorType.Semantic, " - operation can't be applied to boolean")
 
     def get_type(self, value):

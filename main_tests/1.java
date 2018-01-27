@@ -1,10 +1,11 @@
 class A {
     static int a;
     static int b;
-
+    static boolean c;
     public static int f(int x) {
         a = 10;
         b = 20;
+        c = true == false;
         return x * a + b;
     }
 }

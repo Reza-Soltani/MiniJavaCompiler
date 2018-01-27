@@ -144,3 +144,9 @@ class Scanner(object):
             return self.symbol_table.get(self.source_code[self.begin:self.forward])
         else:
             return None
+
+    def get_line_number(self):
+        return self.source_code[:self.forward].count('\n') + 1
+
+    def get_last_identifier_name(self):
+        return self.source_code[self.begin:self.forward]

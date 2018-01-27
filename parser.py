@@ -50,6 +50,7 @@ class Parser(object):
             self.must_get = False
             return
         if self.next_token[0].value == 'EOF':
+            self.error_handler.rasie_error(ErrorType.Pars, "some terminal left")
             self.generate_code()
 
         self.stack.pop()
@@ -105,6 +106,7 @@ class Parser(object):
 
     def generate_code(self):
         self.code_generator.output_pb()
+        sys.exit()
 
 
 if __name__ == '__main__':

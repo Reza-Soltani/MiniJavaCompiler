@@ -28,8 +28,9 @@ class SemanticAnalyzer(object):
         if self.symbol_table.local_search:
             # we know type of current token, we have already define this variable in this scope
             if current_token[1].tp is not None:
-                self.error_handler.rasie_error(ErrorType.Semantic, "Variable {} is already define in the scope"
-                                         .format(current_token[1].name))
+                self.error_handler.rasie_error(ErrorType.Semantic,
+                                               "A variable or method by name {} is already define in the scope"
+                                               .format(current_token[1].name))
             else:
                 current_token[1].tp = self.semantic_stack.top()
                 self.semantic_stack.pop()
@@ -119,11 +120,15 @@ class SemanticAnalyzer(object):
         self.semantic_stack.push(ted)
 
     def return_assign(self, current_token):
+        if len(self.semantic_stack) < 2:
+            self.error_handler.rasie_error(ErrorType.Semantic, 'Expected return at the end of method')
         return_type = self.semantic_stack[-2].return_type.value
         value_type = self.get_type(self.semantic_stack[-1])
 
         if return_type != value_type:
-            self.error_handler.rasie_error(ErrorType.Semantic, 'Incompatible types. \n Required: {} \n Found: {}'.format(return_type, value_type))
+            self.error_handler.rasie_error(ErrorType.Semantic,
+                                           'Incompatible types. \n Required: {} \n Found: {}'.format(return_type,
+                                                                                                     value_type))
 
     def call_method(self, current_token):
         ted = self.semantic_stack[-1]
@@ -140,9 +145,12 @@ class SemanticAnalyzer(object):
 
         for i in range(len(args)):
             arg_type = self.get_type(args[i])
-            return_type = self.get_type(self.semantic_stack[-1 -ted].parameters[i])
+            return_type = self.get_type(self.semantic_stack[-1 - ted].parameters[i])
             if arg_type != return_type:
-                self.error_handler.rasie_error(ErrorType.Semantic, "Wrong {}st argument type.Found: {}, requierd: {}".format(i+1, arg_type, return_type ))
+                self.error_handler.rasie_error(ErrorType.Semantic,
+                                               "Wrong {}st argument type.Found: {}, requierd: {}".format(i + 1,
+                                                                                                         arg_type,
+                                                                                                         return_type))
 
         self.semantic_stack.push(ted)
 
@@ -153,7 +161,9 @@ class SemanticAnalyzer(object):
         if first_type == second_type:
             return
 
-        self.error_handler.rasie_error(ErrorType.Semantic, 'Incompatible types. \n Required: {} \n Found: {}'.format(second_type, first_type))
+        self.error_handler.rasie_error(ErrorType.Semantic,
+                                       'Incompatible types. \n Required: {} \n Found: {}'.format(second_type,
+                                                                                                 first_type))
 
     def not_bool_less(self, last_token):
         first_type = self.get_type(self.semantic_stack[-1])

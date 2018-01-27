@@ -39,7 +39,7 @@ class Parser(object):
             print(self.top_stack)
             self.stack.pop()
             self.must_get = False
-            self.error_handler.rasie_error(ErrorType.Pars, "{} is left".format(self.top_stack))
+            self.error_handler.rasie_error(ErrorType.Pars, "we added {} to code".format(self.top_stack))
             return
 
         follow = self.follow[self.top_stack]

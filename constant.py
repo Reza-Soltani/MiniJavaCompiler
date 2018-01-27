@@ -1,6 +1,11 @@
 from enum import Enum
 
 
+class ErrorType(Enum):
+    Semantic = 'SEMANTIC'
+    Pars = 'PARS'
+
+
 class Commands(Enum):
     ADD = 'ADD'
     SUB = 'SUB'

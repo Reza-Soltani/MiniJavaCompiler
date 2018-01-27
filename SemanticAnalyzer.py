@@ -1,4 +1,5 @@
-from constant import VariableType
+from constant import VariableType, ErrorType
+from error_handler import ErrorHandler
 
 
 class SemanticAnalyzer(object):
@@ -6,6 +7,7 @@ class SemanticAnalyzer(object):
         self.symbol_table = symbol_table
         self.memory_manager = memory_manager
         self.semantic_stack = semantic_stack
+        self.error_handler = ErrorHandler()
 
     def set_local_search(self, current_token):
         self.symbol_table.local_search = True
@@ -25,20 +27,26 @@ class SemanticAnalyzer(object):
         if self.symbol_table.local_search:
             # we know type of current token, we have already define this variable in this scope
             if current_token[1].tp is not None:
-                raise SemanticError("{} is already defined in this scope.".format(current_token[1].name))
+                self.error_handler.rasie_error(ErrorType.Semantic, "Variable {} is already define in the scope"
+                                         .format(current_token[1].name))
             else:
                 current_token[1].tp = self.semantic_stack.top()
                 self.semantic_stack.pop()
-                if current_token[1].tp is not VariableType.CLASS:
-                    current_token[1].address = self.memory_manager.get_variable(current_token[1].tp)
 
                 if current_token[1].tp is VariableType.METHOD:
                     current_token[1].return_type = self.semantic_stack.top()
                     self.semantic_stack.pop()
+
+                if current_token[1].tp is not VariableType.CLASS and current_token[1].tp is not VariableType.METHOD:
+                    current_token[1].address = self.memory_manager.get_variable(current_token[1].tp)
+
+                if current_token[1].tp is VariableType.METHOD:
+                    current_token[1].address = self.memory_manager.get_variable(current_token[1].return_type)
+
         else:
             # we don't know type of current token, we didn't define this variable in this scope
-            if current_token[1].tp is None:
-                raise SemanticError("{} is not defined in this scope.".format(current_token[1].name))
+            if current_token[1] is None:
+                self.error_handler.rasie_error(ErrorType.Semantic, "can't resolve symbol")
 
     def add_row(self, current_token):
         self.semantic_stack.push(0)
@@ -107,6 +115,48 @@ class SemanticAnalyzer(object):
         self.semantic_stack.push(tmp)
         self.semantic_stack.push(ted)
 
+    def return_assign(self, current_token):
+        return_type = self.semantic_stack[-2].return_type.value
+        value_type = self.memory_manager.get_tp(self.semantic_stack[-1]).value
+        if return_type != value_type:
+            self.error_handler.rasie_error(ErrorType.Semantic, 'Incompatible types. \n Required: {} \n Found: {}'.format(return_type, value_type))
 
-class SemanticError(Exception):
-    pass
+    def call_method(self, current_token):
+        ted = self.semantic_stack[-1]
+        self.semantic_stack.pop(1)
+        args = self.semantic_stack[-ted:]
+
+        if len(args) < len(self.semantic_stack[-1 - ted].parameters):
+            self.error_handler.rasie_error(ErrorType.Semantic, 'Expected more arguments')
+        if len(args) > len(self.semantic_stack[-1 - ted].parameters):
+            self.error_handler.rasie_error(ErrorType.Semantic, 'Expected less arguments')
+
+        for i in range(len(args)):
+            arg_type = self.memory_manager.get_tp(args[i]).value
+            return_type = self.memory_manager.get_tp(self.semantic_stack[-1 -ted].parameters[i]).value
+            if arg_type != return_type:
+                self.error_handler.rasie_error(ErrorType.Semantic, "Wrong {}st argument type.Found: {}, requierd: {}".format(i+1, arg_type, return_type ))
+        self.semantic_stack.push(ted)
+
+    def assign(self, last_token):
+        first_type = None
+        second_type = None
+        if isinstance(self.semantic_stack[-1], str):
+            if self.semantic_stack[-1].startswith("#"):
+                first_type = VariableType.INT
+            else:
+                first_type = VariableType.BOOLEAN
+        else:
+            first_type = self.memory_manager.get_tp(self.semantic_stack[-1])
+
+        if isinstance(self.semantic_stack[-2], str):
+            if self.semantic_stack[-2].startswith("#"):
+                first_type = VariableType.INT
+            else:
+                first_type = VariableType.BOOLEAN
+        else:
+            second_type = self.memory_manager.get_tp(self.semantic_stack[-2])
+
+        if first_type == second_type:
+            return
+        self.error_handler.rasie_error(ErrorType.Semantic, 'Incompatible types. \n Required: {} \n Found: {}'.format(second_type, first_type))

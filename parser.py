@@ -5,6 +5,8 @@ from stack import Stack
 from grammer import PARSER_TABLE, TERMINALS, NON_TERMINALS, GRAMMAR, FOLLOW
 from scanner import Scanner
 from memory_manager import MemoryManager
+from error_handler import ErrorHandler
+from constant import ErrorType
 
 
 class Parser(object):
@@ -28,58 +30,54 @@ class Parser(object):
         self.current_identifier = None
         self.follow = FOLLOW
         self.non_terminal = 0
+        self.must_get = False
+        self.error_handler = ErrorHandler()
 
     def error_handler_panic_mode(self):
         if self.top_stack in TERMINALS:
             self.stack.pop()
-            print("yek paiane kam bud")
-
+            self.must_get = False
+            self.error_handler.rasie_error(ErrorType.Pars, "{} is left".format(self.top_stack))
             return
 
         follow = self.follow[self.top_stack]
-        while self.next_token not in follow and self.next_token != "EOF":
-            print(self.next_token, "ezafe bud")
-            self.next_token = self.scanner.get_next_token()[0].value
+        while self.next_token[0].value not in follow and self.next_token[0].value != "EOF":
+            self.error_handler.rasie_error(ErrorType.Pars, "{} is addition".format(self.next_token[0].value))
+            self.next_token = self.scanner.get_next_token()
 
         if self.non_terminal == 1 and self.next_token != "EOF":
+            self.must_get = False
             return
 
         self.stack.pop()
-        print("kotah tarin ghaide ro")
-        return
+        self.must_get = False
 
     def run(self):
-        must_get = False
         while True:
             self.top_stack = self.stack.top()
-         #   print(self.semantic_stack)
-         #   print(self.stack, self.next_token, self.current_identifier)
-         #   input()
-        ##    print(self.next_token[0].value)
+
             if self.top_stack in TERMINALS:
-                if must_get:
+                if self.must_get:
                     self.next_token = self.scanner.get_next_token()
-                    must_get = False
+                    self.must_get = False
                 if self.next_token[0].value == self.top_stack:
                     if self.next_token[0].value == 'EOF':
                         break
                     self.stack.pop()
-                    must_get = True
+                    self.must_get = True
                 else:
-                    print("see error")
-                    # self.error_handler_panic_mode()
+                    self.error_handler_panic_mode()
 
             elif self.top_stack in NON_TERMINALS:
-                if must_get:
+                if self.must_get:
                     self.next_token = self.scanner.get_next_token()
                     # self.next_token = tmp[0].value
                     # self.current_identifier = tmp[1]
-                    must_get = False
+                    self.must_get = False
                 if self.next_token[0].value in self.parser_table[self.top_stack]:
                     self.push_rule_to_stack(self.parser_table[self.top_stack][self.next_token[0].value])
                 else:
-                    print("error")
-                    # self.error_handler_panic_mode()
+                    self.error_handler_panic_mode()
 
                 self.top_stack = self.stack.top()
 

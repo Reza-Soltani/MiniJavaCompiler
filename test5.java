@@ -41,11 +41,15 @@ class Cls{
 
 class Cls3 extends Cls{
     static int d;
+
+    public static int test( int a , int b , int c , int d) {
+        return 10;
+    }
 }
 
 public class Cls2 {
     public static void main( ) {
-        System.out.println(Cls3.test(1, 2, 3, 4));
+        System.out.println(Cls3.d);
     }
 }
 EOF

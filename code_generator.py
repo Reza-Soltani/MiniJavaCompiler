@@ -68,8 +68,8 @@ class CodeGenerator(object):
         self.program_block.append(make_command(Commands.JP,
                                                self.semantic_stack[-3]))
         self.program_block[self.semantic_stack[-1]] = make_command(Commands.JPF,
-                                                                        self.semantic_stack[-2],
-                                                                        len(self.program_block))
+                                                                   self.semantic_stack[-2],
+                                                                   len(self.program_block))
         self.semantic_stack.pop(3)
 
     def label(self, current_token):
@@ -82,15 +82,15 @@ class CodeGenerator(object):
     def jpf_save(self, current_token):
         self.save(current_token)
         self.program_block[self.semantic_stack[-2]] = make_command(Commands.JPF,
-                                                                        self.semantic_stack[-3],
-                                                                        len(self.program_block))
+                                                                   self.semantic_stack[-3],
+                                                                   len(self.program_block))
         tmp = self.semantic_stack[-1]
         self.semantic_stack.pop(3)
         self.semantic_stack.push(tmp)
 
     def jump_here(self, current_token):
         self.program_block[self.semantic_stack[-1]] = make_command(Commands.JP,
-                                                                        len(self.program_block))
+                                                                   len(self.program_block))
         self.semantic_stack.pop(1)
 
     def sys_out(self, current_token):

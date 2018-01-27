@@ -137,6 +137,7 @@ class Scanner(object):
         make_path('false', self.root, letter, Tokens.FALSE)
 
     def get_attribute(self, token):
+      #  print('wtf ' + self.source_code[self.begin:self.forward])
         if token == Tokens.INTEGER:
             return int(self.source_code[self.begin:self.forward])
         elif token == Tokens.IDENTIFIER:

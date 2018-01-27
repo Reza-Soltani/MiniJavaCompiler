@@ -16,6 +16,11 @@ class SemanticAnalyzer(object):
     def remove_last(self, current_token):
         self.semantic_stack.pop(1)
 
+    def remove_prev(self, current_token):
+        tmp = self.semantic_stack[-1]
+        self.semantic_stack.pop(2)
+        self.semantic_stack.push(tmp)
+
     def identifier(self, current_token):
         if self.symbol_table.local_search:
             # we know type of current token, we have already define this variable in this scope

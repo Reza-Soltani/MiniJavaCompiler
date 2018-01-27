@@ -58,7 +58,7 @@ GRAMMAR = {
     46: "Factor false #immediate_bool",
     47: "Factor Integer",
     48: "D @remove_last",
-    49: "D @set_search_scope . Identifier @reset_search_scope DD",
+    49: "D @remove_prev @set_search_scope . Identifier @reset_search_scope DD",
     50: "DD",
     51: "DD ( Arguments ) #call_method",  # TODO: support this!
     52: "RelExpression RelTerm E",

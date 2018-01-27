@@ -1,6 +1,7 @@
 // test case 1
 class Cls{
     static boolean d ;
+    int c;
     public static int test( int a , boolean b ) {
         return a + c ;
     }

@@ -53,7 +53,8 @@ class Parser(object):
         while True:
             self.top_stack = self.stack.top()
          #   print(self.semantic_stack)
-         #   print(self.stack, self.next_token, self.current_identifier)
+       #     print(self.stack, self.next_token, self.current_identifier)
+        #    a = input()
          #   input()
         ##    print(self.next_token[0].value)
             if self.top_stack in TERMINALS:
@@ -103,4 +104,6 @@ class Parser(object):
         self.stack.pop()
 
 
-Parser('test6.java').run()
+if __name__ == '__main__':
+    import sys
+    Parser(sys.argv[1]).run()

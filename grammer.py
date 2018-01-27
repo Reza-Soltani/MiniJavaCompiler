@@ -39,7 +39,7 @@ GRAMMAR = {
     27: "Statement { Statements }",
     28: "Statement if ( GenExpression ) #save Statement else #jpf_save Statement #jump_here",
     29: "Statement while ( #label GenExpression #save ) Statement #end_while",
-    30: "Statement for ( Identifier = Integer #assign ; #label RelTerm #save ; Identifier += Integer #plus_assign ) Statement #end_for",
+    30: "Statement for ( Identifier = Integer #assign ; #label RelTerm #save ; Identifier += Integer ) Statement #plus_assign #end_for",
     31: "Statement Identifier = GenExpression #assign ;",
     32: "Statement System.out.println ( GenExpression ) #sys_out ;",
     33: "GenExpression Expression G",

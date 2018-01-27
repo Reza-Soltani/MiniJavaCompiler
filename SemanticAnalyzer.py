@@ -6,6 +6,7 @@ class SemanticAnalyzer(object):
         self.symbol_table = symbol_table
         self.memory_manager = memory_manager
         self.semantic_stack = semantic_stack
+        self.method_cnt = 0
 
     def set_local_search(self, current_token):
         self.symbol_table.local_search = True
@@ -34,6 +35,8 @@ class SemanticAnalyzer(object):
 
                 if current_token[1].tp is VariableType.METHOD:
                     current_token[1].return_type = self.semantic_stack.top()
+                    current_token[1].return_address = self.memory_manager.saved_pc_address + self.method_cnt * 4
+                    self.method_cnt = self.method_cnt + 1
                     self.semantic_stack.pop()
         else:
             # we don't know type of current token, we didn't define this variable in this scope

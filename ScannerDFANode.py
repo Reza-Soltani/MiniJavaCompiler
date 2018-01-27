@@ -57,7 +57,7 @@ class Node(object):
             return self.letter_goal, None
         if self.ow is not None:
             return self.ow, self.other
-        if char in PANIC_MODE_SCANNER_CHARS: # panic mode error handling in dfa
+        if char in PANIC_MODE_SCANNER_CHARS:  # panic mode error handling in dfa
             print('Error: SKIPPED INPUT UNTIL {}'.format(char))
             return root, None
         return self, None

@@ -101,4 +101,6 @@ class Parser(object):
         self.stack.pop()
 
 
-Parser('test6.java').run()
+if __name__ == '__main__':
+    import sys
+    Parser(sys.argv[1]).run()

@@ -40,7 +40,7 @@ class CodeGenerator(object):
                                                    self.semantic_stack[-1].parameters[i]))
         self.program_block.append(make_command(Commands.ASSIGN,
                                                '#' + str(len(self.program_block) + 2),
-                                               self.memory_manager.saved_pc_address))
+                                               self.semantic_stack[-1].return_address))
         self.program_block.append(make_command(Commands.JP,
                                                self.semantic_stack[-1].line))
         tmp = self.semantic_stack[-1].address
@@ -51,9 +51,10 @@ class CodeGenerator(object):
         self.program_block.append(make_command(Commands.ASSIGN,
                                                self.semantic_stack[-1],
                                                self.semantic_stack[-2].address))
+        tmp = self.semantic_stack[-2].return_address
         self.semantic_stack.pop(2)
         self.program_block.append(make_command(Commands.JP,
-                                               '@' + str(self.memory_manager.saved_pc_address)))
+                                               '@' + str(tmp)))
 
     def end_for(self, current_token):
         self.end_while(current_token)

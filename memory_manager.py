@@ -23,3 +23,4 @@ class MemoryManager(object):
 
     def get_tp(self, address):
         return self.type_dict[address]
+

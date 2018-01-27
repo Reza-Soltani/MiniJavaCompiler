@@ -9,7 +9,7 @@ class Cls{
 class Cls3 extends Cls{
     static boolean d ;
     public static int test( int a , int b ) {
-        return a * b;
+        return a * b + Cls.test1(a, b);
     }
 }
 public class Cls2 {
@@ -21,8 +21,7 @@ public class Cls2 {
         b = 10;
         c = 20;
         d = Cls3.test(b, c);
-        c = Cls.test1(b, c);
-        System.out.println(d + c);
+        System.out.println(d);
     }
 }
 EOF

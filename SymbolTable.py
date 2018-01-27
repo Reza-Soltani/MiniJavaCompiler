@@ -4,7 +4,10 @@ class SymbolTableRow(object):
         self.address = address
         self.tp = tp
         self.return_type = None
-        self.parametrs = []
+        self.parameters = []
+
+    def __str__(self):
+        return 'name is ' + self.name
 
 
 class SymbolTable(object):
@@ -22,6 +25,7 @@ class SymbolTable(object):
 
     def global_search(self, name):
         for row in reversed(self.table):
+          #  print(row, name)
             if row.name == name:
                 return row
         return None
@@ -52,6 +56,7 @@ class OOPSymbolTable(object):
     def global_search(self, name):
         sym = self.current
         while True:
+            #print(sym.name)
             ret = sym.global_search(name)
             if ret is not None:
                 return ret

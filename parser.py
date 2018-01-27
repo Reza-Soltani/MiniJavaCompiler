@@ -2,7 +2,7 @@ from SemanticAnalyzer import SemanticAnalyzer
 from SymbolTable import OOPSymbolTable, SymbolTableRow
 from code_generator import CodeGenerator
 from stack import Stack
-from grammer import PARSER_TABEL, TERMINALS, NON_TERMINALS, GRAMMAR, FOLLOW
+from grammer import PARSER_TABLE, TERMINALS, NON_TERMINALS, GRAMMAR, FOLLOW
 from scanner import Scanner
 from memory_manager import MemoryManager
 
@@ -13,7 +13,7 @@ class Parser(object):
         self.stack = Stack()
         self.stack.push("EOF")
         self.stack.push("Source")
-        self.parser_table = PARSER_TABEL
+        self.parser_table = PARSER_TABLE
         self.symbol_table = OOPSymbolTable()
         self.semantic_stack = Stack()
         self.memory_manager = MemoryManager(0, 1000)
@@ -52,8 +52,9 @@ class Parser(object):
         must_get = False
         while True:
             self.top_stack = self.stack.top()
-
-            print(self.stack, self.next_token, self.current_identifier)
+            print(self.semantic_stack)
+       #     print(self.stack, self.next_token, self.current_identifier)
+        ##    print(self.next_token[0].value)
             if self.top_stack in TERMINALS:
                 if must_get:
                     self.next_token = self.scanner.get_next_token()

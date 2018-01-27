@@ -4,6 +4,7 @@ class MemoryManager(object):
         self.pointer = main_start
         self.temp = temp_start
         self.temp_init = temp_start
+        self.saved_pc_address = temp_start + 1000
 
     def get_variable(self):
         start = self.pointer
@@ -16,3 +17,4 @@ class MemoryManager(object):
         ret = self.temp
         self.temp += 4
         return ret
+

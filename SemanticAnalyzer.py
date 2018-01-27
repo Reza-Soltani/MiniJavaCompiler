@@ -13,11 +13,14 @@ class SemanticAnalyzer(object):
     def reset_local_search(self, current_token):
         self.symbol_table.local_search = False
 
+    def remove_last(self, current_token):
+        self.semantic_stack.pop(1)
+
     def identifier(self, current_token):
         if self.symbol_table.local_search:
-            # we know type of current token, we already define this variable in this scope
+            # we know type of current token, we have already define this variable in this scope
             if current_token[1].tp is not None:
-                raise SemanticError("{} is already define in this scope".format(current_token[1].name))
+                raise SemanticError("{} is already defined in this scope.".format(current_token[1].name))
             else:
                 current_token[1].tp = self.semantic_stack.top()
                 self.semantic_stack.pop()
@@ -28,48 +31,40 @@ class SemanticAnalyzer(object):
                     current_token[1].return_type = self.semantic_stack.top()
                     self.semantic_stack.pop()
         else:
-            # we don't know type of current token, we don't define this variable in this scope
+            # we don't know type of current token, we didn't define this variable in this scope
             if current_token[1].tp is None:
-                raise SemanticError("{} is not define in this scope".format(current_token[1].name))
+                raise SemanticError("{} is not defined in this scope.".format(current_token[1].name))
 
     def add_row(self, current_token):
-        self.semantic_stack.push(current_token[1])
         self.semantic_stack.push(0)
 
     def identifier_parameter(self, current_token):
-        identifier = self.semantic_stack.top()
-        type = self.semantic_stack[-2]
-        number = self.semantic_stack[-3]
-        self.semantic_stack.pop(3)
-        self.semantic_stack.push(type)
+        identifier = self.semantic_stack[-1]
+        number = self.semantic_stack[-2]
+        self.semantic_stack.pop(2)
         self.semantic_stack.push(identifier)
-        self.semantic_stack.push(number+1)
+        self.semantic_stack.push(number + 1)
 
     def end_parameter(self, current_token):
         number = self.semantic_stack.top()
         self.semantic_stack.pop()
-        list = []
+        ls = []
 
         for i in range(number):
-            type = self.semantic_stack[-2]
-            address = self.semantic_stack[-1]
-            list.append((type, address))
+            ls.append(self.semantic_stack[-1])
 
-            self.semantic_stack.pop(2)
+            self.semantic_stack.pop(1)
 
-        self.semantic_stack.top()[1].parametrs = reversed(list)
+        self.semantic_stack.top().parameters = reversed(ls)
 
     def create_extend(self, current_token):
         self.symbol_table.extend_flag = True
-        pass
 
     def start_scope(self, current_token):
         self.symbol_table.start_scope(current_token[1].name)
-        pass
 
     def end_scope(self, current_token):
         self.symbol_table.end_scope()
-        pass
 
     def identifier_int(self, current_token):
         self.semantic_stack.push(VariableType.INT)
@@ -83,32 +78,16 @@ class SemanticAnalyzer(object):
     def identifier_class(self, current_token):
         self.semantic_stack.push(VariableType.CLASS)
 
-    def Pid(self, last_token):
-        pass
+    def set_search_scope(self, current_token):
+        self.semantic_stack.push(self.symbol_table.current)
+        self.symbol_table.current = self.symbol_table.get_class_table(self.semantic_stack[-2])
 
-    def assign(self, last_token):
-        pass
-
-    def Cmp_save(self, last_token):
-        pass
-
-    def Int(self, last_token):
-        pass
-
-    def For(self, last_token):
-        pass
-
-    def Check_equal(self, last_token):
-        pass
-
-    def Check_less(self, last_token):
-        pass
-
-    def immediate_integer(self, last_token):
-        pass
+    def reset_search_scope(self, current_token):
+        tmp = self.semantic_stack[-1]
+        self.symbol_table.current = self.semantic_stack[-2]
+        self.semantic_stack.pop(3)
+        self.semantic_stack.push(tmp)
 
 
 class SemanticError(Exception):
     pass
-
-

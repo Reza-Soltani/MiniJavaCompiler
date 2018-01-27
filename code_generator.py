@@ -21,6 +21,14 @@ class CodeGenerator(object):
         self.memory_manager = memory_manager
         self.program_block = []
 
+    def return_assign(self, current_token):
+        self.program_block.append(make_command(Commands.ASSIGN,
+                                               self.semantic_stack[-1],
+                                               self.semantic_stack[-2].address))
+        self.semantic_stack.pop(2)
+        self.program_block.append(make_command(Commands.JP,
+                                               '@' + str(self.memory_manager.saved_pc_address)))
+
     def end_for(self, current_token):
         self.end_while(current_token)
 
@@ -96,7 +104,10 @@ class CodeGenerator(object):
         self.semantic_stack.push('#' + str(last_token[1]))
 
     def identifier(self, last_token):
-        self.semantic_stack.push(last_token[1].address)
+        if self.symbol_table.local_search:
+            self.semantic_stack.push(last_token[1])
+        else:
+            self.semantic_stack.push(last_token[1].address)
 
     def identifier_name(self, last_token):
         self.semantic_stack.push(last_token[1].name)
@@ -104,10 +115,10 @@ class CodeGenerator(object):
     def immediate_bool(self, last_token):
         self.semantic_stack.push(last_token[0].value)
 
-    def aggregate(self, last_token):
-        tmp = self.symbol_table.get_class_table(self.semantic_stack[-2]).get(last_token[1].name).address
-        self.semantic_stack.pop(3)
-        self.semantic_stack.push(tmp)
+    # def aggregate(self, last_token):
+    #     tmp = self.symbol_table.get_class_table(self.semantic_stack[-2]).get(last_token[1].name).address
+    #     self.semantic_stack.pop(3)
+    #     self.semantic_stack.push(tmp)
 
     def multi_operation(self, last_token):
         tmp = self.memory_manager.get_temp()
@@ -141,24 +152,6 @@ class CodeGenerator(object):
                                                self.semantic_stack[-1],
                                                self.semantic_stack[-2]))
         self.semantic_stack.pop(2)
-
-    def identifier_class(self, last_token):
-        pass
-
-    def identifier_boolean(self, last_token):
-        pass
-
-    def identifier_int(self, last_token):
-        pass
-
-    def identifier_method(self, last_token):
-        pass
-
-    def identifier_parametr(self, last_token):
-        pass
-
-    def end_parametr(self, last_token):
-        pass
 
     def output_pb(self):
         for i in range(len(self.program_block)):

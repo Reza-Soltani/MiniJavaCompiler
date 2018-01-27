@@ -46,16 +46,20 @@ class SemanticAnalyzer(object):
         self.semantic_stack.push(number + 1)
 
     def end_parameter(self, current_token):
+        current_line = self.semantic_stack.top()
+        self.semantic_stack.pop(1)
+
         number = self.semantic_stack.top()
         self.semantic_stack.pop()
         ls = []
 
         for i in range(number):
-            ls.append(self.semantic_stack[-1])
+            ls.append(self.semantic_stack[-1].address)
 
             self.semantic_stack.pop(1)
 
-        self.semantic_stack.top().parameters = reversed(ls)
+        self.semantic_stack.top().parameters = list(reversed(ls))
+        self.semantic_stack.top().line = current_line
 
     def create_extend(self, current_token):
         self.symbol_table.extend_flag = True
@@ -87,6 +91,16 @@ class SemanticAnalyzer(object):
         self.symbol_table.current = self.semantic_stack[-2]
         self.semantic_stack.pop(3)
         self.semantic_stack.push(tmp)
+
+    def add_zero(self, current_token):
+        self.semantic_stack.push(0)
+
+    def save_argument(self, current_token):
+        tmp = self.semantic_stack[-1]
+        ted = self.semantic_stack[-2] + 1
+        self.semantic_stack.pop(2)
+        self.semantic_stack.push(tmp)
+        self.semantic_stack.push(ted)
 
 
 class SemanticError(Exception):

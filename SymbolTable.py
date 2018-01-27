@@ -5,6 +5,7 @@ class SymbolTableRow(object):
         self.tp = tp
         self.return_type = None
         self.parameters = []
+        self.line = None
 
     def __str__(self):
         return 'name is ' + self.name

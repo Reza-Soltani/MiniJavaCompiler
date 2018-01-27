@@ -16,7 +16,7 @@ class Parser(object):
         self.parser_table = PARSER_TABLE
         self.symbol_table = OOPSymbolTable()
         self.semantic_stack = Stack()
-        self.memory_manager = MemoryManager(0, 1000)
+        self.memory_manager = MemoryManager(1000, 2000)
         self.scanner = Scanner(file_name, self.symbol_table)
         self.next_token = self.scanner.get_next_token()
         self.top_stack = self.stack.top()
@@ -52,7 +52,7 @@ class Parser(object):
         must_get = False
         while True:
             self.top_stack = self.stack.top()
-            print(self.semantic_stack)
+       #     print(self.semantic_stack)
        #     print(self.stack, self.next_token, self.current_identifier)
         ##    print(self.next_token[0].value)
             if self.top_stack in TERMINALS:

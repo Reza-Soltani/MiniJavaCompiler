@@ -1,4 +1,4 @@
-from constant import Commands
+from constant import Commands, VariableType
 
 
 def make_command(command, first=None, second=None, third=None):
@@ -20,6 +20,31 @@ class CodeGenerator(object):
         self.semantic_stack = semantic_stack
         self.memory_manager = memory_manager
         self.program_block = []
+
+    def get_current_line(self, current_token):
+        self.semantic_stack.push(len(self.program_block))
+
+    def call_method(self, current_token):
+        ted = self.semantic_stack[-1]
+        self.semantic_stack.pop(1)
+        args = list(reversed(self.semantic_stack[-ted:]))
+        self.semantic_stack.pop(ted)
+        if len(args) < len(self.semantic_stack[-1].parameters):
+            raise Exception('Expected more arguments')
+        if len(args) > len(self.semantic_stack[-1].parameters):
+            raise Exception('Expected less arguments')
+        for i in range(len(args)):
+            self.program_block.append(make_command(Commands.ASSIGN,
+                                                   args[i],
+                                                   self.semantic_stack[-1].parameters[i]))
+        self.program_block.append(make_command(Commands.ASSIGN,
+                                               len(self.program_block) + 2,
+                                               self.memory_manager.saved_pc_address))
+        self.program_block.append(make_command(Commands.JP,
+                                               self.semantic_stack[-1].line))
+        tmp = self.semantic_stack[-1].address
+        self.semantic_stack.pop(1)
+        self.semantic_stack.push(tmp)
 
     def return_assign(self, current_token):
         self.program_block.append(make_command(Commands.ASSIGN,
@@ -104,7 +129,7 @@ class CodeGenerator(object):
         self.semantic_stack.push('#' + str(last_token[1]))
 
     def identifier(self, last_token):
-        if self.symbol_table.local_search:
+        if self.symbol_table.local_search or last_token[1].tp == VariableType.METHOD:
             self.semantic_stack.push(last_token[1])
         else:
             self.semantic_stack.push(last_token[1].address)

@@ -20,6 +20,7 @@ class CodeGenerator(object):
         self.semantic_stack = semantic_stack
         self.memory_manager = memory_manager
         self.program_block = []
+        self.program_block.append("")
 
     def get_current_line(self, current_token):
         self.semantic_stack.push(len(self.program_block))
@@ -27,7 +28,7 @@ class CodeGenerator(object):
     def call_method(self, current_token):
         ted = self.semantic_stack[-1]
         self.semantic_stack.pop(1)
-        args = list(reversed(self.semantic_stack[-ted:]))
+        args = self.semantic_stack[-ted:]
         self.semantic_stack.pop(ted)
         if len(args) < len(self.semantic_stack[-1].parameters):
             raise Exception('Expected more arguments')
@@ -38,7 +39,7 @@ class CodeGenerator(object):
                                                    args[i],
                                                    self.semantic_stack[-1].parameters[i]))
         self.program_block.append(make_command(Commands.ASSIGN,
-                                               len(self.program_block) + 2,
+                                               '#' + str(len(self.program_block) + 2),
                                                self.memory_manager.saved_pc_address))
         self.program_block.append(make_command(Commands.JP,
                                                self.semantic_stack[-1].line))
@@ -178,6 +179,11 @@ class CodeGenerator(object):
                                                self.semantic_stack[-2]))
         self.semantic_stack.pop(2)
 
+    def start_main(self, last_token):
+        self.program_block[0] = make_command(Commands.JP,
+                                             len(self.program_block))
+
     def output_pb(self):
-        for i in range(len(self.program_block)):
-            print('{}: '.format(i), self.program_block[i])
+        with open("output.txt", "w") as result:
+            for i in range(len(self.program_block)):
+                result.write(str(i) + "\t" + self.program_block[i] + "\n")

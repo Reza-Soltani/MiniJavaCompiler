@@ -52,7 +52,7 @@ class Parser(object):
         must_get = False
         while True:
             self.top_stack = self.stack.top()
-            print(self.semantic_stack)
+         #   print(self.semantic_stack)
          #   print(self.stack, self.next_token, self.current_identifier)
          #   input()
         ##    print(self.next_token[0].value)

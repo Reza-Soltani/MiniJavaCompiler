@@ -12,7 +12,7 @@ TERMINALS = ['EOF', 'public', 'class', 'static', 'void', 'main', '{', '}', '(', 
 GRAMMAR = {
     1: "Goal Source EOF",
     2: "Source ClassDeclarations MainClass",
-    3: "MainClass public class @identifier_class @set_local_search Identifier @remove_last @start_scope @reset_local_search { public static void main ( ) { VarDeclarations Statements } @end_scope }",
+    3: "MainClass public class @identifier_class @set_local_search Identifier @remove_last @start_scope @reset_local_search { public static void main ( ) { #start_main VarDeclarations Statements } @end_scope }",
     4: "ClassDeclarations ClassDeclaration ClassDeclarations",
     5: "ClassDeclarations",
     6: "ClassDeclaration class @identifier_class @set_local_search Identifier @remove_last @start_scope @reset_local_search Extension { FieldDeclarations MethodDeclarations @end_scope }",
